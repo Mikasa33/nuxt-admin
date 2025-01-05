@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+
 </script>
 
 <template>
   <div>
-    <NuxtWelcome />
+    User
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { title } = useAppConfig()
+const { title, logo } = useAppConfig()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 
@@ -11,8 +11,8 @@ const { collapsed } = storeToRefs(useAppStore())
   >
     <NImage
       preview-disabled
-      src="/favicon.ico"
-      class="h-32px"
+      :src="logo"
+      class="h-42px"
     />
     <NH2
       v-show="!collapsed"

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<Error>
+	<Code>AccessDenied</Code>
+	<Message>Access Denied.</Message>
+	<Resource>/object</Resource>
+	<RequestId>Njc5MzNiZjBfMmUwZWZmMWVfYmQ2Nl8xMTJlOTYyNg==</RequestId>
+	<TraceId>OGVmYzZiMmQzYjA2OWNhODk0NTRkMTBiOWVmMDAxODc0OWRkZjk0ZDM1NmI1M2E2MTRlY2MzZDhmNmI5MWI1OWVjYTU1YTQxYjIzY2EyNTc2ZmY2NzFlOWU4NzBkOTFlMTNlY2NhMjg1YmYyMjU0YWVkZTE4M2Y5ZmExMTYzM2M=</TraceId>
+</Error>
+

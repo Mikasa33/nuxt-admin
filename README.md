@@ -1,4 +1,4 @@
-# Starter Nuxt
+# Nuxt Admin
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
@@ -73,3 +73,15 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Todo List
+
+- 系统管理
+  - [x] 用户管理
+  - [x] 部门管理
+  - [x] 菜单管理
+  - [x] 角色管理
+  - [x] 字典管理
+  - [x] 文件管理
+  - [x] 日志管理
+  - [ ] 任务管理

@@ -1,39 +1,50 @@
-export default defineEventHandler(async () => {
-  return [
-    {
-      id: 1,
-      parentId: null,
-      name: 'Home',
-      path: '/',
-      icon: 'i-icon-park-outline-home',
-    },
-    {
-      id: 2,
-      parentId: null,
-      name: 'System',
-      path: '/system',
-      icon: 'i-icon-park-outline-setting-one',
-    },
-    {
-      id: 3,
-      parentId: 2,
-      name: 'User',
-      path: '/system/user',
-      icon: 'i-icon-park-outline-peoples',
-    },
-    {
-      id: 4,
-      parentId: 2,
-      name: 'Role',
-      path: '/system/role',
-      icon: 'i-icon-park-outline-permissions',
-    },
-    {
-      id: 5,
-      parentId: 2,
-      name: 'Menu',
-      path: '/system/menu',
-      icon: 'i-icon-park-outline-mindmap-list',
-    },
-  ]
+import type { SelectSystemMenu } from '~~/server/db/schema/system/menu'
+import { and, asc, eq, getTableColumns, not } from 'drizzle-orm'
+import { systemMenu } from '~~/server/db/schema/system/menu'
+import { systemRoleMenu } from '~~/server/db/schema/system/roleMenu'
+import { systemUser } from '~~/server/db/schema/system/user'
+import { systemUserRole } from '~~/server/db/schema/system/userRole'
+
+export async function getUserMenuList(options: { userId: number, includePermission?: boolean }) {
+  const { userId, includePermission = false } = options
+
+  if (await isAdmin()) {
+    return useDrizzle()
+      .select(getTableColumns(systemMenu))
+      .from(systemMenu)
+      .orderBy(asc(systemMenu.orderBy))
+      .where(includePermission ? undefined : not(eq(systemMenu.type, 'permission')))
+      .all()
+  }
+
+  return useDrizzle()
+    .select(getTableColumns(systemMenu))
+    .from(systemMenu)
+    .orderBy(asc(systemMenu.orderBy))
+    .innerJoin(systemRoleMenu, eq(systemMenu.id, systemRoleMenu.menuId))
+    .innerJoin(systemUserRole, eq(systemRoleMenu.roleId, systemUserRole.roleId))
+    .innerJoin(systemUser, eq(systemUserRole.userId, systemUser.id))
+    .where(
+      and(
+        eq(systemUser.id, userId),
+        includePermission ? undefined : not(eq(systemMenu.type, 'permission')),
+      ),
+    )
+    .all()
+}
+
+export function getRouters(menuList: SelectSystemMenu[]) {
+  return menuList.filter(item => !!item.router).map(item => item.router) as string[]
+}
+
+export function getPermissions(menuList: SelectSystemMenu[]) {
+  return menuList.filter(item => item.type === 'permission' && !!item.slug).flatMap((item) => {
+    return item.slug?.split(',')
+  }) as string[]
+}
+
+export default defineEventHandler(async (event) => {
+  const session = await getUserSession(event)
+
+  return getUserMenuList({ userId: session.user!.id })
 })

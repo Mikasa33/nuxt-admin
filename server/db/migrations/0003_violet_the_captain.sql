@@ -1,0 +1,1 @@
+ALTER TABLE `system_user` RENAME COLUMN "deptId" TO "departmentId";

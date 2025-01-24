@@ -18,7 +18,7 @@ const { collapsed } = storeToRefs(useAppStore())
     <NLayout
       has-sider
       position="absolute"
-      class="!top-64px"
+      class="!top-64px !dark:bg-#18181c"
     >
       <NLayoutSider
         v-model:collapsed="collapsed"
@@ -33,7 +33,7 @@ const { collapsed } = storeToRefs(useAppStore())
       <NLayout
         embedded
         :native-scrollbar="false"
-        content-class="p-24px"
+        content-class="p-24px h-full"
         class="rounded-tl-12px"
       >
         <NuxtPage />

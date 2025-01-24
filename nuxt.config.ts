@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   css: [
     '@unocss/reset/tailwind-compat.css',
   ],
+  // https://color-mode.nuxtjs.org/
+  colorMode: {
+    classSuffix: '',
+  },
   // https://devtools.nuxt.com/
   devtools: {
     enabled: true,
@@ -29,6 +33,7 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@vueuse/nuxt',
     'dayjs-nuxt',
+    'nuxt-auth-utils',
     'nuxt-lodash',
     [
       '@pinia/nuxt',
@@ -40,4 +45,21 @@ export default defineNuxtConfig({
       },
     ],
   ],
+  nitro: {
+    database: {
+      default: {
+        connector: 'sqlite',
+        options: { name: 'db' },
+      },
+    },
+    experimental: {
+      asyncContext: true,
+      database: true,
+      tasks: true,
+    },
+    scheduledTasks: {
+      '* * * * *': ['test:task'],
+    },
+  },
+  ssr: false,
 })

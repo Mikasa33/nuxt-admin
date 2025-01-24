@@ -9,7 +9,7 @@ function convertToTree(data: any[]) {
   data.forEach((item) => {
     map.set(item.id, {
       label: item.name,
-      key: item.path,
+      key: item.router ?? `key-${item.id}`,
       icon: item.icon ? renderIcon(item.icon) : null,
     })
   })
@@ -20,10 +20,12 @@ function convertToTree(data: any[]) {
     }
     else {
       const parent = map.get(item.parentId)
-      if (!parent.children) {
-        parent.children = []
+      if (parent) {
+        if (!parent.children) {
+          parent.children = []
+        }
+        parent.children.push(map.get(item.id))
       }
-      parent.children.push(map.get(item.id))
     }
   })
 

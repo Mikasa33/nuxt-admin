@@ -2,9 +2,9 @@
 import type { DropdownOption } from 'naive-ui'
 import { NuxtLink } from '#components'
 
-const dialog = useDialog()
-
-const { data: userData } = await useFetch('/api/person')
+const dialog = useCustomDialog()
+const message = useMessage()
+const { loggedIn, user, clear } = useUserSession()
 
 const options = [
   {
@@ -36,14 +36,15 @@ function renderLabel(option: DropdownOption) {
 function onSelect(key: string) {
   switch (key) {
     case 'logout': {
-      dialog.warning({
-        autoFocus: false,
-        title: '提示',
+      const d = dialog.create({
         content: '是否确认退出登录？',
-        positiveText: '确认',
-        negativeText: '取消',
-        onPositiveClick: () => {
-          navigateTo('/login')
+        onPositiveClick: async () => {
+          await clear()
+          d.loading = true
+          if (!loggedIn.value) {
+            message.success('退出登录成功')
+            navigateTo('/login')
+          }
         },
       })
     }
@@ -62,21 +63,22 @@ function onSelect(key: string) {
       size="large"
       class="!px-12px"
     >
-      <div class="flex-y-center gap-x-8px">
+      <NEl class="flex-y-center gap-x-8px">
         <NAvatar
           round
-          :size="32"
-          :src="userData?.avatar"
+          :size="28"
+          :src="user?.avatar"
+          class="bg-[var(--primary-color)]"
         >
           <template
-            v-if="!userData?.avatar"
+            v-if="!user?.avatar"
             #default
           >
-            {{ userData?.nickname.slice(0, 1) }}
+            {{ (user?.nickname ?? user?.username)?.slice(0, 1) }}
           </template>
         </NAvatar>
-        <span>{{ userData?.nickname }}</span>
-      </div>
+        <span>{{ user?.nickname ?? user?.username }}</span>
+      </NEl>
     </NButton>
   </NDropdown>
 </template>

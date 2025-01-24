@@ -24,7 +24,7 @@ export default defineNuxtModule({
         }
       }
 
-      removePagesMatching(/\**\/components/, pages)
+      removePagesMatching(/\**\/(?:components|utils)/, pages)
     },
   },
 

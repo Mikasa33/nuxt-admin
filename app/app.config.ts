@@ -1,3 +1,4 @@
 export default defineAppConfig({
-  title: 'starter-nuxt',
+  title: 'Nuxt Admin',
+  logo: '/logo.svg',
 })

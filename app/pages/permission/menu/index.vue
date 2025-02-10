@@ -133,7 +133,7 @@ const columns: DataTableColumns = [
             size="small"
           >
             <CrudColumnBtn
-              v-if="hasPermission('permission:menu:add')"
+              v-if="hasPermission('permission:menu:add') && row.type !== 'permission'"
               type="primary"
               @click="onAdd({ parentId: row.id })"
             >

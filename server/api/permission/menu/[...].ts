@@ -11,6 +11,10 @@ export default defineEventHandler(async () => {
     deleteOptions: {
       after: async (data: any) => {
         await useDrizzle()
+          .delete(systemMenu)
+          .where(inArray(systemMenu.parentId, data.map((item: any) => item.id)))
+
+        await useDrizzle()
           .delete(systemRoleMenu)
           .where(inArray(systemRoleMenu.menuId, data.map((item: any) => item.id)))
       },

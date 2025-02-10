@@ -27,6 +27,8 @@ const { collapsed } = storeToRefs(useAppStore())
         :native-scrollbar="false"
         show-trigger="arrow-circle"
         :width="240"
+        trigger-class="!top-160px"
+        collapsed-trigger-class="!top-160px"
       >
         <LayoutMenu />
       </NLayoutSider>

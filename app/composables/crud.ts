@@ -304,14 +304,15 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param body 请求体
    */
   async function executeSave(body: Record<string, any>) {
+    let cloneBody = useCloneDeep(body)
     if (onBeforeSave) {
-      body = await onBeforeSave(body) ?? body
+      cloneBody = await onBeforeSave(cloneBody) ?? cloneBody
     }
 
     try {
       const data = await $fetch<Record<string, any>>(`${baseUrl}${formOptions.status === 'edit' ? apis?.update ?? API.UPDATE : apis?.add ?? API.ADD}`, {
         method: formOptions.status === 'edit' ? 'put' : 'post',
-        body,
+        body: cloneBody,
       })
 
       if (onSaveSuccess) {

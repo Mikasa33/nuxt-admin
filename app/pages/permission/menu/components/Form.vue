@@ -145,7 +145,8 @@ function renderLabel(option: SelectOption) {
       <NFormItem
         v-if="model.type === 'permission'"
         label="权限标识"
-        path="orderBy"
+        path="slug"
+        :rule="[{ required: true, type: 'array', message: '权限标识必填', trigger: ['input', 'change'] }]"
       >
         <NDynamicTags
           v-model:value="model.slug"

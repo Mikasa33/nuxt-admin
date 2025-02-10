@@ -37,6 +37,7 @@ function onConfirm() {
     <NDrawerContent
       :closable
       :title
+      :native-scrollbar="false"
       header-class="h-64px"
     >
       <slot />

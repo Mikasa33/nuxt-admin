@@ -72,7 +72,10 @@ const columns: DataTableColumns = [
         </template>
 
         <template #operation="{ row }">
-          <NFlex size="small">
+          <NFlex
+            justify="center"
+            size="small"
+          >
             <CrudColumnBtn
               v-if="hasPermission('permission:role:update')"
               type="primary"

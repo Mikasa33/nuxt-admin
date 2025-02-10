@@ -1,7 +1,16 @@
-export const useAppStore = defineStore('app', () => {
-  const collapsed = ref(false)
+export const useAppStore = defineStore(
+  'app',
+  () => {
+    const collapsed = ref(false)
 
-  return {
-    collapsed,
-  }
-})
+    return {
+      collapsed,
+    }
+  },
+  {
+    persist: {
+      key: 'nuxt-admin-app-state',
+      storage: piniaPluginPersistedstate.localStorage(),
+    },
+  },
+)

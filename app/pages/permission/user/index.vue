@@ -267,7 +267,10 @@ function onChangePassword(row: any) {
           </template>
 
           <template #operation="{ row }">
-            <NFlex size="small">
+            <NFlex
+              justify="center"
+              size="small"
+            >
               <CrudColumnBtn
                 v-if="hasPermission('permission:user:changePassword')"
                 type="primary"
@@ -299,9 +302,9 @@ function onChangePassword(row: any) {
     </template>
 
     <template #resize-trigger>
-      <div class="group h-full w-full flex-x-center">
-        <NEl class="h-full w-1px bg-#efeff5 transition-300 dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
-      </div>
+      <NEl class="group h-full w-full flex-x-center">
+        <div class="h-full w-1px bg-#efeff5 transition-300 group-active:w-2px group-hover:w-2px dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
+      </NEl>
     </template>
   </NSplit>
 </template>

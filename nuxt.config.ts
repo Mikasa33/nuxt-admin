@@ -1,8 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config/
 export default defineNuxtConfig({
+  app: {
+    pageTransition: {
+      name: 'fade-slide',
+      mode: 'out-in',
+    },
+  },
   compatibilityDate: '2024-11-01',
   css: [
     '@unocss/reset/tailwind-compat.css',
+    '@/assets/style/index.css',
   ],
   // https://color-mode.nuxtjs.org/
   colorMode: {
@@ -44,6 +51,7 @@ export default defineNuxtConfig({
         ],
       },
     ],
+    'pinia-plugin-persistedstate/nuxt',
   ],
   nitro: {
     database: {
@@ -58,7 +66,8 @@ export default defineNuxtConfig({
       tasks: true,
     },
     scheduledTasks: {
-      '* * * * *': ['test:task'],
+      // 每月 1 日 0 点清空系统日志
+      '0 0 1 * *': ['system:log:clear'],
     },
   },
   ssr: false,

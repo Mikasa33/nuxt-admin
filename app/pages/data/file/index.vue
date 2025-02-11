@@ -1,7 +1,6 @@
 <script lang="tsx" setup>
-import type { DataTableColumns, DropdownOption, TreeOption, UploadCustomRequestOptions } from 'naive-ui'
+import type { DataTableColumns, DropdownOption, TreeOption } from 'naive-ui'
 import { Icon } from '#components'
-import COS, { type Credentials } from 'cos-js-sdk-v5'
 import Form from './components/Form.vue'
 
 const message = useMessage()
@@ -17,7 +16,7 @@ const { data: catalogData, loading: catalogLoading, title: catalogTitle, onAdd: 
   },
   onFetchListSuccess: (data: any) => {
     if (!selectedKeys.value.length) {
-      onUpdateSelectedKeys([data?.[0]?.id])
+      selectedKeys.value = [data?.[0]?.id]
     }
   },
 })
@@ -40,11 +39,47 @@ const { data, loading, title, pagination, searchKeyword, onBatchDelete, onDelete
   },
 })
 
-async function onUpdateSelectedKeys(keys: number[]) {
+function onUpdateSelectedKeys(keys: Array<number | string>) {
   if (keys.length) {
-    selectedKeys.value = keys
-    await nextTick()
     onLoad()
+  }
+}
+
+const dropdownOptions = ref<DropdownOption[]>([])
+
+function onBeforeContextmenu() {
+  if (!hasAnyPermission(['data:fileCatalog:update', 'data:fileCatalog:delete'])) {
+    message.warning('您没有权限进行此操作')
+    return
+  }
+
+  const options: DropdownOption[] = []
+  if (hasPermission('data:fileCatalog:update')) {
+    options.push({
+      key: 'edit',
+      label: '编辑',
+      icon: renderIcon('i-icon-park-outline-edit'),
+    })
+  }
+  if (hasPermission('data:fileCatalog:delete')) {
+    options.push({
+      key: 'delete',
+      label: '删除',
+      icon: renderIcon('i-icon-park-outline-delete'),
+    })
+  }
+
+  dropdownOptions.value = options
+}
+
+function handleDropdownSelect(key: string | number, node: any) {
+  switch (key) {
+    case 'edit':
+      onEditCatalog(node)
+      break
+    case 'delete':
+      onDialogDeleteCatalog(node)
+      break
   }
 }
 
@@ -71,66 +106,6 @@ function onUpdateExpandedKeys(
 
 function renderPrefix(action: 'expand' | 'collapse' = 'collapse') {
   return renderIcon(action === 'expand' ? 'i-icon-park-outline-folder-open' : 'i-icon-park-outline-folder-close')
-}
-
-const dropdown = ref<any>({
-  node: {},
-  options: [],
-  show: false,
-  x: 0,
-  y: 0,
-})
-
-function handleSelect(key: string | number) {
-  dropdown.value.show = false
-
-  switch (key) {
-    case 'edit':
-      onEditCatalog(dropdown.value.node)
-      break
-    case 'delete':
-      onDialogDeleteCatalog(dropdown.value.node)
-      break
-  }
-}
-
-function nodeProps({ option }: { option: TreeOption }) {
-  return {
-    async onContextmenu(e: MouseEvent) {
-      e.preventDefault()
-
-      if (!hasAnyPermission(['data:fileCatalog:update', 'data:fileCatalog:delete'])) {
-        message.warning('您没有权限进行此操作')
-        return
-      }
-
-      const options: DropdownOption[] = []
-      if (hasPermission('data:fileCatalog:update')) {
-        options.push({
-          key: 'edit',
-          label: '编辑',
-          icon: renderIcon('i-icon-park-outline-edit'),
-        })
-      }
-      if (hasPermission('data:fileCatalog:delete')) {
-        options.push({
-          key: 'delete',
-          label: '删除',
-          icon: renderIcon('i-icon-park-outline-delete'),
-        })
-      }
-
-      setTimeout(() => {
-        dropdown.value = {
-          node: option,
-          options,
-          show: true,
-          x: e.clientX,
-          y: e.clientY,
-        }
-      }, 200)
-    },
-  }
 }
 
 const columns: DataTableColumns = [
@@ -162,18 +137,9 @@ const columns: DataTableColumns = [
 </script>
 
 <template>
-  <NSplit
-    default-size="280px"
-    direction="horizontal"
-    :max="0.5"
-    min="220px"
-    class="h-full flex overflow-hidden rounded-16px bg-#fff transition-300 dark:bg-#18181d"
-  >
-    <template #1>
-      <BaseCard
-        :title="catalogTitle"
-        class="rounded-br-0 rounded-tr-0"
-      >
+  <BaseSplitCard>
+    <template #left>
+      <BaseCard :title="catalogTitle">
         <template #suffix>
           <NFlex
             size="small"
@@ -205,43 +171,19 @@ const columns: DataTableColumns = [
           </NFlex>
         </template>
 
-        <NSpin
-          :show="catalogLoading"
-          size="small"
-          content-class="wh-full"
-          class="wh-full"
-        >
-          <NTree
-            :selected-keys="selectedKeys"
-            accordion
-            block-line
-            :data="catalogTreeData"
-            expand-on-click
-            key-field="id"
-            label-field="name"
-            :node-props="nodeProps"
-            show-line
-            :theme-overrides="{
-              nodeHeight: '40px',
-            }"
-            :class="{
-              'flex-y-center': !catalogData.length,
-            }"
-            class="wh-full"
-            @update:selected-keys="onUpdateSelectedKeys"
-            @update:expanded-keys="onUpdateExpandedKeys"
-          />
-        </NSpin>
-        <BaseContextMenu
-          v-model:show="dropdown.show"
-          :options="dropdown.options"
-          :x="dropdown.x"
-          :y="dropdown.y"
-          @select="handleSelect"
+        <BaseTree
+          v-model:selected-keys="selectedKeys"
+          :data="catalogTreeData"
+          :loading="catalogLoading"
+          :dropdown-options
+          :on-before-contextmenu
+          @update:expanded-keys="onUpdateExpandedKeys"
+          @update:selected-keys="onUpdateSelectedKeys"
+          @dropdown-select="handleDropdownSelect"
         />
       </BaseCard>
     </template>
-    <template #2>
+    <template #right>
       <BaseCard
         :title
         class="rounded-bl-0 rounded-tl-0"
@@ -312,11 +254,5 @@ const columns: DataTableColumns = [
 
       <Form />
     </template>
-
-    <template #resize-trigger>
-      <NEl class="group h-full w-full flex-x-center">
-        <div class="h-full w-1px bg-#efeff5 transition-300 group-active:w-2px group-hover:w-2px dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
-      </NEl>
-    </template>
-  </NSplit>
+  </BaseSplitCard>
 </template>

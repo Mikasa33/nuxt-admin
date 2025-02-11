@@ -72,7 +72,7 @@ function onSave() {
         path="rePassword"
         :rule="[
           { required: true, message: '确认密码必填', trigger: ['input', 'change'] },
-          { validator: (_, val: string) => model.password === val, message: '两次密码不一致', trigger: ['input', 'change'] },
+          { validator: (_: any, val: string) => model.password === val, message: '两次密码不一致', trigger: ['input', 'change'] },
         ]"
         first
       >

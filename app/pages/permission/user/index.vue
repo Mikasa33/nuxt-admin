@@ -8,7 +8,7 @@ import UserForm from './components/UserForm.vue'
 const message = useMessage()
 const { hasPermission, hasAnyPermission } = usePermission()
 
-const selectedKeys = ref<number[]>([])
+const selectedKeys = ref<Array<number | string>>([])
 
 const { data: departmentData, loading: departmentLoading, title: departmentTitle, onLoad: onLoadDepartment, onAdd: onAddDepartment, onEdit: onEditDepartment, onDialogDelete: onDialogDeleteDepartment } = useCrud({
   baseUrl: '/api/permission/department',
@@ -18,13 +18,13 @@ const { data: departmentData, loading: departmentLoading, title: departmentTitle
   },
   onFetchListSuccess: async (data: any) => {
     if (!selectedKeys.value.length) {
-      onUpdateSelectedKeys([data?.[0]?.id])
+      selectedKeys.value = [data?.[0]?.id]
     }
   },
 })
 
 const departmentTreeData = computed(() => {
-  return buildTree(departmentData.value.map((item: any) => ({ ...item, prefix: renderPrefix() })))
+  return buildTree(departmentData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-peoples') })))
 })
 
 const { data, loading, title, pagination, searchKeyword, onAdd, onBatchDelete, onDelete, onEdit, onLoad } = useCrud({
@@ -41,75 +41,9 @@ const { data, loading, title, pagination, searchKeyword, onAdd, onBatchDelete, o
   },
 })
 
-async function onUpdateSelectedKeys(keys: number[]) {
+function onUpdateSelectedKeys(keys: Array<number | string>) {
   if (keys.length) {
-    selectedKeys.value = keys
-    await nextTick()
     onLoad()
-  }
-}
-
-function renderPrefix() {
-  return renderIcon('i-icon-park-outline-peoples')
-}
-
-const dropdown = ref<any>({
-  node: {},
-  options: [],
-  show: false,
-  x: 0,
-  y: 0,
-})
-
-function handleSelect(key: string | number) {
-  dropdown.value.show = false
-
-  switch (key) {
-    case 'edit':
-      onEditDepartment(dropdown.value.node)
-      break
-    case 'delete':
-      onDialogDeleteDepartment(dropdown.value.node)
-      break
-  }
-}
-
-function nodeProps({ option }: { option: TreeOption }) {
-  return {
-    async onContextmenu(e: MouseEvent) {
-      e.preventDefault()
-
-      if (!hasAnyPermission(['permission:department:update', 'permission:department:delete'])) {
-        message.warning('您没有权限进行此操作')
-        return
-      }
-
-      const options: DropdownOption[] = []
-      if (hasPermission('permission:department:update')) {
-        options.push({
-          key: 'edit',
-          label: '编辑',
-          icon: renderIcon('i-icon-park-outline-edit'),
-        })
-      }
-      if (option.id !== 1 && hasPermission('permission:department:delete')) {
-        options.push({
-          key: 'delete',
-          label: '删除',
-          icon: renderIcon('i-icon-park-outline-delete'),
-        })
-      }
-
-      setTimeout(() => {
-        dropdown.value = {
-          node: option,
-          options,
-          show: true,
-          x: e.clientX,
-          y: e.clientY,
-        }
-      }, 200)
-    },
   }
 }
 
@@ -139,6 +73,44 @@ const columns: DataTableColumns = [
   },
 ]
 
+const dropdownOptions = ref<DropdownOption[]>([])
+
+function onBeforeContextmenu(option: TreeOption) {
+  if (!hasAnyPermission(['permission:department:update', 'permission:department:delete'])) {
+    message.warning('您没有权限进行此操作')
+    return
+  }
+
+  const options: DropdownOption[] = []
+  if (hasPermission('permission:department:update')) {
+    options.push({
+      key: 'edit',
+      label: '编辑',
+      icon: renderIcon('i-icon-park-outline-edit'),
+    })
+  }
+  if (option.id !== 1 && hasPermission('permission:department:delete')) {
+    options.push({
+      key: 'delete',
+      label: '删除',
+      icon: renderIcon('i-icon-park-outline-delete'),
+    })
+  }
+
+  dropdownOptions.value = options
+}
+
+function handleDropdownSelect(key: string | number, node: any) {
+  switch (key) {
+    case 'edit':
+      onEditDepartment(node)
+      break
+    case 'delete':
+      onDialogDeleteDepartment(node)
+      break
+  }
+}
+
 const changePasswordShow = ref(false)
 const changePasswordModel = ref({})
 function onChangePassword(row: any) {
@@ -148,18 +120,9 @@ function onChangePassword(row: any) {
 </script>
 
 <template>
-  <NSplit
-    default-size="280px"
-    direction="horizontal"
-    :max="0.5"
-    min="220px"
-    class="h-full flex overflow-hidden rounded-16px bg-#fff transition-300 dark:bg-#18181d"
-  >
-    <template #1>
-      <BaseCard
-        :title="departmentTitle"
-        class="rounded-br-0 rounded-tr-0"
-      >
+  <BaseSplitCard>
+    <template #left>
+      <BaseCard :title="departmentTitle">
         <template #suffix>
           <NFlex
             size="small"
@@ -191,44 +154,21 @@ function onChangePassword(row: any) {
           </NFlex>
         </template>
 
-        <NSpin
-          :show="departmentLoading"
-          size="small"
-          content-class="wh-full"
-          class="wh-full"
-        >
-          <NTree
-            :selected-keys="selectedKeys"
-            accordion
-            block-line
-            :data="departmentTreeData"
-            default-expand-all
-            expand-on-click
-            key-field="id"
-            label-field="name"
-            :node-props="nodeProps"
-            show-line
-            :theme-overrides="{
-              nodeHeight: '40px',
-            }"
-            :class="{
-              'flex-y-center': !departmentData.length,
-            }"
-            class="wh-full"
-            @update:selected-keys="onUpdateSelectedKeys"
-          />
-        </NSpin>
-        <BaseContextMenu
-          v-model:show="dropdown.show"
-          :options="dropdown.options"
-          :x="dropdown.x"
-          :y="dropdown.y"
-          @select="handleSelect"
+        <BaseTree
+          v-model:selected-keys="selectedKeys"
+          :data="departmentTreeData"
+          default-expand-all
+          :loading="departmentLoading"
+          :dropdown-options
+          :on-before-contextmenu
+          @update:selected-keys="onUpdateSelectedKeys"
+          @dropdown-select="handleDropdownSelect"
         />
+
         <DepartmentForm />
       </BaseCard>
     </template>
-    <template #2>
+    <template #right>
       <BaseCard :title>
         <CrudTable
           :columns
@@ -300,11 +240,5 @@ function onChangePassword(row: any) {
         :model="changePasswordModel"
       />
     </template>
-
-    <template #resize-trigger>
-      <NEl class="group h-full w-full flex-x-center">
-        <div class="h-full w-1px bg-#efeff5 transition-300 group-active:w-2px group-hover:w-2px dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
-      </NEl>
-    </template>
-  </NSplit>
+  </BaseSplitCard>
 </template>

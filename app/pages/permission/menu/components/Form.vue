@@ -50,7 +50,7 @@ watch(
   },
 )
 
-const label = computed(() => model.value.type === 'permission' ? '权限' : '菜单')
+const label = computed(() => model.value.type === 'permission' ? '权限' : model.value.type === 'catalog' ? '目录' : '菜单')
 
 function renderLabel(option: SelectOption) {
   return (
@@ -79,6 +79,19 @@ function renderLabel(option: SelectOption) {
       require-mark-placement="left"
     >
       <NFormItem
+        label="菜单类型"
+        path="type"
+      >
+        <NRadioGroup v-model:value="model.type">
+          <NRadioButton
+            v-for="item in typeOptions"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </NRadioGroup>
+      </NFormItem>
+      <NFormItem
         label="父级菜单"
         path="parentId"
       >
@@ -104,22 +117,8 @@ function renderLabel(option: SelectOption) {
         />
       </NFormItem>
       <NFormItem
-        label="菜单类型"
-        path="type"
-        :rule="[{ required: true, message: '菜单类型必填', trigger: ['input', 'change'] }]"
-      >
-        <NRadioGroup v-model:value="model.type">
-          <NRadioButton
-            v-for="item in typeOptions"
-            :key="item.value"
-            :value="item.value"
-            :label="item.label"
-          />
-        </NRadioGroup>
-      </NFormItem>
-      <NFormItem
         v-if="model.type !== 'permission'"
-        label="菜单图标"
+        :label="`${label}图标`"
         path="icon"
       >
         <NSelect

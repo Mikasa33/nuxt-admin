@@ -17,13 +17,13 @@ const { data: typeData, loading: typeLoading, title: typeTitle, onAdd: onAddType
   },
   onFetchListSuccess: (data: any) => {
     if (!selectedKeys.value.length) {
-      onUpdateSelectedKeys([data?.[0]?.id])
+      selectedKeys.value = [data?.[0]?.id]
     }
   },
 })
 
 const typeTreeData = computed(() => {
-  return buildTree(typeData.value.map((item: any) => ({ ...item, prefix: renderPrefix() })))
+  return buildTree(typeData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-bookmark-one') })))
 })
 
 const { data, loading, title, searchKeyword, onAdd, onBatchDelete, onDelete, onEdit, onLoad } = useCrud({
@@ -46,75 +46,47 @@ const { data, loading, title, searchKeyword, onAdd, onBatchDelete, onDelete, onE
   },
 })
 
-async function onUpdateSelectedKeys(keys: number[]) {
+function onUpdateSelectedKeys(keys: Array<number | string>) {
   if (keys.length) {
-    selectedKeys.value = keys
-    await nextTick()
     onLoad()
   }
 }
 
-function renderPrefix() {
-  return renderIcon('i-icon-park-outline-bookmark-one')
+const dropdownOptions = ref<DropdownOption[]>([])
+
+function onBeforeContextmenu() {
+  if (!hasAnyPermission(['data:dictType:update', 'data:dictType:delete'])) {
+    message.warning('您没有权限进行此操作')
+    return
+  }
+
+  const options: DropdownOption[] = []
+  if (hasPermission('data:dictType:update')) {
+    options.push({
+      key: 'edit',
+      label: '编辑',
+      icon: renderIcon('i-icon-park-outline-edit'),
+    })
+  }
+  if (hasPermission('data:dictType:delete')) {
+    options.push({
+      key: 'delete',
+      label: '删除',
+      icon: renderIcon('i-icon-park-outline-delete'),
+    })
+  }
+
+  dropdownOptions.value = options
 }
 
-const dropdown = ref<any>({
-  node: {},
-  options: [],
-  show: false,
-  x: 0,
-  y: 0,
-})
-
-function handleSelect(key: string | number) {
-  dropdown.value.show = false
-
+function handleDropdownSelect(key: string | number, node: any) {
   switch (key) {
     case 'edit':
-      onEditType(dropdown.value.node)
+      onEditType(node)
       break
     case 'delete':
-      onDialogDeleteType(dropdown.value.node)
+      onDialogDeleteType(node)
       break
-  }
-}
-
-function nodeProps({ option }: { option: TreeOption }) {
-  return {
-    async onContextmenu(e: MouseEvent) {
-      e.preventDefault()
-
-      if (!hasAnyPermission(['data:dictType:update', 'data:dictType:delete'])) {
-        message.warning('您没有权限进行此操作')
-        return
-      }
-
-      const options: DropdownOption[] = []
-      if (hasPermission('data:dictType:update')) {
-        options.push({
-          key: 'edit',
-          label: '编辑',
-          icon: renderIcon('i-icon-park-outline-edit'),
-        })
-      }
-      if (hasPermission('data:dictType:delete')) {
-        options.push({
-          key: 'delete',
-          label: '删除',
-          icon: renderIcon('i-icon-park-outline-delete'),
-        })
-      }
-
-      setTimeout(() => {
-        dropdown.value = {
-          node: option,
-          options,
-          show: true,
-          x: e.clientX,
-          y: e.clientY,
-        }
-      }, 200)
-    },
   }
 }
 
@@ -146,18 +118,9 @@ const columns: DataTableColumns = [
 </script>
 
 <template>
-  <NSplit
-    default-size="280px"
-    direction="horizontal"
-    :max="0.5"
-    min="220px"
-    class="h-full flex overflow-hidden rounded-16px bg-#fff transition-300 dark:bg-#18181d"
-  >
-    <template #1>
-      <BaseCard
-        :title="typeTitle"
-        class="rounded-br-0 rounded-tr-0"
-      >
+  <BaseSplitCard>
+    <template #left>
+      <BaseCard :title="typeTitle">
         <template #suffix>
           <NFlex
             size="small"
@@ -189,43 +152,19 @@ const columns: DataTableColumns = [
           </NFlex>
         </template>
 
-        <NSpin
-          :show="typeLoading"
-          size="small"
-          content-class="wh-full"
-          class="wh-full"
-        >
-          <NTree
-            :selected-keys="selectedKeys"
-            accordion
-            block-line
-            :data="typeTreeData"
-            expand-on-click
-            key-field="id"
-            label-field="name"
-            :node-props="nodeProps"
-            :render-label="renderLabel"
-            show-line
-            :theme-overrides="{
-              nodeHeight: '40px',
-            }"
-            :class="{
-              'flex-y-center': !typeData.length,
-            }"
-            class="wh-full"
-            @update:selected-keys="onUpdateSelectedKeys"
-          />
-        </NSpin>
-        <BaseContextMenu
-          v-model:show="dropdown.show"
-          :options="dropdown.options"
-          :x="dropdown.x"
-          :y="dropdown.y"
-          @select="handleSelect"
+        <BaseTree
+          v-model:selected-keys="selectedKeys"
+          :data="typeTreeData"
+          :loading="typeLoading"
+          :dropdown-options
+          :render-label
+          :on-before-contextmenu
+          @update:selected-keys="onUpdateSelectedKeys"
+          @dropdown-select="handleDropdownSelect"
         />
       </BaseCard>
     </template>
-    <template #2>
+    <template #right>
       <BaseCard
         :title
         class="rounded-bl-0 rounded-tl-0"
@@ -289,11 +228,5 @@ const columns: DataTableColumns = [
       <Form />
       <DictForm />
     </template>
-
-    <template #resize-trigger>
-      <NEl class="group h-full w-full flex-x-center">
-        <div class="h-full w-1px bg-#efeff5 transition-300 group-active:w-2px group-hover:w-2px dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
-      </NEl>
-    </template>
-  </NSplit>
+  </BaseSplitCard>
 </template>

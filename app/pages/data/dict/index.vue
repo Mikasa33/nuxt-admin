@@ -9,23 +9,6 @@ const { hasPermission, hasAnyPermission } = usePermission()
 
 const selectedKeys = ref<number[]>([])
 
-const { data: typeData, loading: typeLoading, title: typeTitle, onAdd: onAddType, onDialogDelete: onDialogDeleteType, onEdit: onEditType, onLoad: onLoadType } = useCrud({
-  baseUrl: '/api/data/dictType',
-  title: '字典类型',
-  listOptions: {
-    pagination: false,
-  },
-  onFetchListSuccess: (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-    }
-  },
-})
-
-const typeTreeData = computed(() => {
-  return buildTree(typeData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-bookmark-one') })))
-})
-
 const { data, loading, title, searchKeyword, onAdd, onBatchDelete, onDelete, onEdit, onLoad } = useCrud({
   key: 'dict',
   baseUrl: '/api/data/dict',
@@ -44,6 +27,24 @@ const { data, loading, title, searchKeyword, onAdd, onBatchDelete, onDelete, onE
   onBeforeSave: (data: any) => {
     data.typeId = selectedKeys.value[0]
   },
+})
+
+const { data: typeData, loading: typeLoading, title: typeTitle, onAdd: onAddType, onDialogDelete: onDialogDeleteType, onEdit: onEditType, onLoad: onLoadType } = useCrud({
+  baseUrl: '/api/data/dictType',
+  title: '字典类型',
+  listOptions: {
+    pagination: false,
+  },
+  onFetchListSuccess: (data: any) => {
+    if (!selectedKeys.value.length) {
+      selectedKeys.value = [data?.[0]?.id]
+      onLoad()
+    }
+  },
+})
+
+const typeTreeData = computed(() => {
+  return buildTree(typeData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-bookmark-one') })))
 })
 
 function onUpdateSelectedKeys(keys: Array<number | string>) {

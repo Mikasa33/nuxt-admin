@@ -10,23 +10,6 @@ const { hasPermission, hasAnyPermission } = usePermission()
 
 const selectedKeys = ref<Array<number | string>>([])
 
-const { data: departmentData, loading: departmentLoading, title: departmentTitle, onLoad: onLoadDepartment, onAdd: onAddDepartment, onEdit: onEditDepartment, onDialogDelete: onDialogDeleteDepartment } = useCrud({
-  baseUrl: '/api/permission/department',
-  title: '部门',
-  listOptions: {
-    pagination: false,
-  },
-  onFetchListSuccess: async (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-    }
-  },
-})
-
-const departmentTreeData = computed(() => {
-  return buildTree(departmentData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-peoples') })))
-})
-
 const { data, loading, title, pagination, searchKeyword, onAdd, onBatchDelete, onDelete, onEdit, onLoad } = useCrud({
   key: 'user',
   baseUrl: '/api/permission/user',
@@ -39,6 +22,24 @@ const { data, loading, title, pagination, searchKeyword, onAdd, onBatchDelete, o
       }
     }),
   },
+})
+
+const { data: departmentData, loading: departmentLoading, title: departmentTitle, onLoad: onLoadDepartment, onAdd: onAddDepartment, onEdit: onEditDepartment, onDialogDelete: onDialogDeleteDepartment } = useCrud({
+  baseUrl: '/api/permission/department',
+  title: '部门',
+  listOptions: {
+    pagination: false,
+  },
+  onFetchListSuccess: async (data: any) => {
+    if (!selectedKeys.value.length) {
+      selectedKeys.value = [data?.[0]?.id]
+      onLoad()
+    }
+  },
+})
+
+const departmentTreeData = computed(() => {
+  return buildTree(departmentData.value.map((item: any) => ({ ...item, prefix: renderIcon('i-icon-park-outline-peoples') })))
 })
 
 function onUpdateSelectedKeys(keys: Array<number | string>) {

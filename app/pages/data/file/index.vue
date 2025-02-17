@@ -8,23 +8,6 @@ const { hasPermission, hasAnyPermission } = usePermission()
 
 const selectedKeys = ref<number[]>([])
 
-const { data: catalogData, loading: catalogLoading, title: catalogTitle, onAdd: onAddCatalog, onDialogDelete: onDialogDeleteCatalog, onEdit: onEditCatalog, onLoad: onLoadCatalog } = useCrud({
-  baseUrl: '/api/data/fileCatalog',
-  title: '文件目录',
-  listOptions: {
-    pagination: false,
-  },
-  onFetchListSuccess: (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-    }
-  },
-})
-
-const catalogTreeData = computed(() => {
-  return buildTree(catalogData.value.map((item: any) => ({ ...item, prefix: renderPrefix('collapse') })))
-})
-
 const { data, loading, title, pagination, searchKeyword, onBatchDelete, onDelete, onLoad } = useCrud({
   key: 'file',
   baseUrl: '/api/data/file',
@@ -37,6 +20,24 @@ const { data, loading, title, pagination, searchKeyword, onBatchDelete, onDelete
       }
     }),
   },
+})
+
+const { data: catalogData, loading: catalogLoading, title: catalogTitle, onAdd: onAddCatalog, onDialogDelete: onDialogDeleteCatalog, onEdit: onEditCatalog, onLoad: onLoadCatalog } = useCrud({
+  baseUrl: '/api/data/fileCatalog',
+  title: '文件目录',
+  listOptions: {
+    pagination: false,
+  },
+  onFetchListSuccess: (data: any) => {
+    if (!selectedKeys.value.length) {
+      selectedKeys.value = [data?.[0]?.id]
+      onLoad()
+    }
+  },
+})
+
+const catalogTreeData = computed(() => {
+  return buildTree(catalogData.value.map((item: any) => ({ ...item, prefix: renderPrefix('collapse') })))
 })
 
 function onUpdateSelectedKeys(keys: Array<number | string>) {

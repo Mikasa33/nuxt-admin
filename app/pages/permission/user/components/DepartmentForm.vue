@@ -1,24 +1,16 @@
 <script lang="ts" setup>
-const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext()
+const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
 
-const loading = ref(false)
-const departmentData = ref<any[]>([])
+const { data, error, execute, status } = useRequest('/api/permission/department/list')
 
 watch(
   show,
   async (val) => {
     if (val) {
-      loading.value = true
-      try {
-        const data = await $fetch('/api/permission/department/list')
-        departmentData.value = buildTree(data)
-      }
-      catch (error: any) {
-        message.error(error.model.message)
-      }
-      finally {
-        loading.value = false
+      await execute()
+
+      if (error.value) {
+        useErrorMessage(error)
       }
     }
   },
@@ -28,6 +20,8 @@ watch(
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -48,10 +42,10 @@ watch(
           v-model:value="model.parentId"
           placeholder="请选择父级部门"
           clearable
-          :loading
+          :loading="status === 'pending'"
           key-field="id"
           label-field="name"
-          :options="departmentData"
+          :options="data"
         />
       </NFormItem>
       <NFormItem

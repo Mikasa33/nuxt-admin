@@ -5,19 +5,23 @@ import { systemRoleMenu } from '~~/server/db/schema/system/roleMenu'
 import { systemUser } from '~~/server/db/schema/system/user'
 import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
+// 获取用户菜单和权限列表
 export async function getUserMenuList(options: { userId: number, includePermission?: boolean }) {
   const { userId, includePermission = false } = options
 
+  const db = await useDrizzle()
+
+  // 超级管理员，获取所有菜单和权限列表
   if (await isAdmin()) {
-    return useDrizzle()
+    return db
       .select(getTableColumns(systemMenu))
       .from(systemMenu)
       .orderBy(asc(systemMenu.orderBy))
       .where(includePermission ? undefined : not(eq(systemMenu.type, 'permission')))
-      .all()
   }
 
-  return useDrizzle()
+  // 非超级管理员，获取用户菜单和权限列表
+  return db
     .select(getTableColumns(systemMenu))
     .from(systemMenu)
     .orderBy(asc(systemMenu.orderBy))
@@ -30,13 +34,14 @@ export async function getUserMenuList(options: { userId: number, includePermissi
         includePermission ? undefined : not(eq(systemMenu.type, 'permission')),
       ),
     )
-    .all()
 }
 
+// 获取路由
 export function getRouters(menuList: SelectSystemMenu[]) {
   return menuList.filter(item => !!item.router).map(item => item.router) as string[]
 }
 
+// 获取权限
 export function getPermissions(menuList: SelectSystemMenu[]) {
   return menuList.filter(item => item.type === 'permission' && !!item.slug).flatMap((item) => {
     return item.slug?.split(',')

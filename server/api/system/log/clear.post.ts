@@ -1,15 +1,15 @@
 import { systemLog } from '~~/server/db/schema/system/log'
 
-export function clearLog() {
-  useDrizzle()
-    .delete(systemLog)
-    .run()
+// 清空系统日志
+export async function clearLog() {
+  const db = await useDrizzle()
+  await db.delete(systemLog)
 }
 
 export default defineEventHandler(async () => {
   await verifyPermission('system:log:clear')
 
-  clearLog()
+  await clearLog()
 
   return {
     success: true,

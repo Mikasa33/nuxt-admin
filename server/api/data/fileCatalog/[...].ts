@@ -1,23 +1,43 @@
-import { count, eq } from 'drizzle-orm'
+import { inArray } from 'drizzle-orm'
+import fs from 'fs-extra'
 import { dataFile } from '~~/server/db/schema/data/file'
 import { dataFileCatalog, insertDataFileCatalogSchema, updateDataFileCatalogSchema } from '~~/server/db/schema/data/fileCatalog'
 
 export default defineEventHandler(async () => {
+  const db = await useDrizzle()
+
   return crud({
     entity: dataFileCatalog,
     insertSchema: insertDataFileCatalogSchema,
     updateSchema: updateDataFileCatalogSchema,
     deleteOptions: {
-      before: async (data) => {
-        const userCount = useDrizzle()
-          .select({ total: count() })
-          .from(dataFile)
-          .where(eq(dataFile.catalogId, Number(data.id)))
-          .get()
+      // 删除后
+      after: async (data) => {
+        // 查询所有文件目录
+        const catalogs = await db.select().from(dataFileCatalog)
 
-        if (userCount?.total) {
-          throw createError({ statusCode: 500, message: '文件目录下存在文件，无法删除' })
+        // 查询所有子孙文件目录
+        const descendantCatalogs: number[] = [...data.id]
+        function findChildCatalogs(ids: number[]) {
+          const childCatalogIds = catalogs.filter(catalog => catalog.parentId && ids.includes(catalog.parentId)).map(catalog => catalog.id)
+          if (childCatalogIds.length) {
+            descendantCatalogs.push(...childCatalogIds)
+            findChildCatalogs(childCatalogIds)
+          }
         }
+        findChildCatalogs(data.id)
+
+        // 删除所有子孙文件目录
+        await db.delete(dataFileCatalog).where(inArray(dataFileCatalog.parentId, descendantCatalogs))
+
+        // 查询所有子孙文件
+        const files = await db.select().from(dataFile).where(inArray(dataFile.catalogId, descendantCatalogs))
+        // 删除所有子孙文件
+        await db.delete(dataFile).where(inArray(dataFile.catalogId, descendantCatalogs))
+        // 从磁盘上删除所有子孙文件
+        files.forEach((file) => {
+          fs.removeSync(`public${file.path}`)
+        })
       },
     },
     listOptions: {

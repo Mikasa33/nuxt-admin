@@ -1,20 +1,20 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
 import * as z from 'zod'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const systemRole = d.sqliteTable('system_role', {
+export const systemRole = d.mysqlTable('system_role', {
   ...baseSchema,
 
   /**
    * 角色标识，必填
    */
-  slug: d.text().notNull(),
+  slug: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 角色名称，必填
    */
-  name: d.text().notNull(),
+  name: d.varchar({ length: 32 }).notNull(),
 })
 
 export type SelectSystemRole = typeof systemRole.$inferSelect & {
@@ -28,4 +28,3 @@ export const insertSystemRoleSchema = createInsertSchema(systemRole).extend({
 export const updateSystemRoleSchema = insertSystemRoleSchema.omit({ createdAt: true, updatedAt: true }).extend({
   menuIds: z.array(z.number()).optional().default([]),
 }).partial()
-export { batchDeleteSchema } from '../../base'

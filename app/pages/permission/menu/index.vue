@@ -16,7 +16,7 @@ const { data, loading, title, onAdd, onDelete, onEdit, onLoad } = useCrud({
     return buildTree(data as Record<string, any>[])
   },
   onFetchInfoSuccess: (data) => {
-    data.slug = data.slug?.split(',')
+    data.slug = data.slug ? data.slug.split(',') : []
   },
   onBeforeSave: (data) => {
     data.slug = data.slug?.toString() ?? null

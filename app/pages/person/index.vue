@@ -6,8 +6,8 @@ import Password from './components/Password.vue'
 <template>
   <BaseTabs
     :data="[
-      { name: 'info', tab: '个人信息' },
-      { name: 'password', tab: '修改密码' },
+      { name: 'info', tab: '个人信息', displayDirective: 'show:lazy' },
+      { name: 'password', tab: '修改密码', displayDirective: 'show:lazy' },
     ]"
   >
     <template #info>

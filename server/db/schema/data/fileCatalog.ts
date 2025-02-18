@@ -1,24 +1,24 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const dataFileCatalog = d.sqliteTable('data_file_catalog', {
+export const dataFileCatalog = d.mysqlTable('data_file_catalog', {
   ...baseSchema,
 
   /**
    * 父级 ID
    */
-  parentId: d.integer('parent_id'),
+  parentId: d.int('parent_id'),
 
   /**
    * 名称，必填
    */
-  name: d.text().notNull(),
+  name: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 排序，默认值 0
    */
-  orderBy: d.integer('order_by').default(0),
+  orderBy: d.int('order_by').default(0),
 })
 
 export type SelectDataFileCatalog = typeof dataFileCatalog.$inferSelect

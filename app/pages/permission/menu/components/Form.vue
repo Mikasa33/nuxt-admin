@@ -14,11 +14,27 @@ for (const key in metadata.categories) {
   }
 }
 
-const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext()
+const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
 
-const loading = ref(false)
-const menuData = ref<any[]>([])
+const { data, error, execute, status } = useRequest('/api/permission/menu/list', {
+  params: {
+    type: ['catalog', 'menu'],
+  },
+})
+const menuData = computed(() => buildTree(data.value ?? []))
+
+watch(
+  show,
+  async (val) => {
+    if (val) {
+      await execute()
+
+      if (error.value) {
+        useErrorMessage(error)
+      }
+    }
+  },
+)
 
 watch(
   show,
@@ -29,22 +45,6 @@ watch(
       }
       if (!model.value.slug) {
         model.value.slug = []
-      }
-
-      loading.value = true
-      try {
-        const data = await $fetch('/api/permission/menu/list', {
-          params: {
-            type: ['catalog', 'menu'],
-          },
-        })
-        menuData.value = buildTree(data)
-      }
-      catch (error: any) {
-        message.error(error.data.message)
-      }
-      finally {
-        loading.value = false
       }
     }
   },
@@ -68,6 +68,8 @@ function renderLabel(option: SelectOption) {
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -99,7 +101,7 @@ function renderLabel(option: SelectOption) {
           v-model:value="model.parentId"
           placeholder="请选择父级菜单"
           clearable
-          :loading
+          :loading="status === 'pending'"
           key-field="id"
           label-field="name"
           :options="menuData"

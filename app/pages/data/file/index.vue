@@ -29,10 +29,15 @@ const { data: catalogData, loading: catalogLoading, title: catalogTitle, onAdd: 
     pagination: false,
   },
   onFetchListSuccess: (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-      onLoad()
+    // 如果当前没有选中目录，并且有目录数据，则选中第一个目录
+    if (!selectedKeys.value.length && data.length) {
+      selectedKeys.value = [data[0].id]
     }
+    // 如果删除的目录中包含当前选中的目录，则选中第一个目录
+    if (!data.find((item: any) => selectedKeys.value.includes(item.id)) && data.length) {
+      selectedKeys.value = [data[0].id]
+    }
+    onLoad()
   },
 })
 
@@ -55,6 +60,13 @@ function onBeforeContextmenu() {
   }
 
   const options: DropdownOption[] = []
+  if (hasPermission('data:fileCatalog:add')) {
+    options.push({
+      key: 'add',
+      label: '新增',
+      icon: renderIcon('i-icon-park-outline-plus'),
+    })
+  }
   if (hasPermission('data:fileCatalog:update')) {
     options.push({
       key: 'edit',
@@ -75,11 +87,14 @@ function onBeforeContextmenu() {
 
 function handleDropdownSelect(key: string | number, node: any) {
   switch (key) {
+    case 'add':
+      onAddCatalog({ parentId: node.id })
+      break
     case 'edit':
       onEditCatalog(node)
       break
     case 'delete':
-      onDialogDeleteCatalog(node)
+      onDialogDeleteCatalog(node, { content: '是否确认删除此目录，及目录中的所有子目录和文件？' })
       break
   }
 }
@@ -162,7 +177,7 @@ const columns: DataTableColumns = [
               quaternary
               size="small"
               class="w-28px !p-0"
-              @click="onAddCatalog({ parentId: selectedKeys[0] })"
+              @click="onAddCatalog()"
             >
               <Icon
                 name="i-icon-park-outline-plus"
@@ -171,7 +186,6 @@ const columns: DataTableColumns = [
             </NButton>
           </NFlex>
         </template>
-
         <BaseTree
           v-model:selected-keys="selectedKeys"
           :data="catalogTreeData"
@@ -185,10 +199,7 @@ const columns: DataTableColumns = [
       </BaseCard>
     </template>
     <template #right>
-      <BaseCard
-        :title
-        class="rounded-bl-0 rounded-tl-0"
-      >
+      <BaseCard :title>
         <CrudTable
           :columns
           :data
@@ -197,23 +208,26 @@ const columns: DataTableColumns = [
         >
           <template #header>
             <NFlex>
-              <div v-if="hasPermission('data:file:upload')">
-                <NUpload
-                  action="/api/data/file/upload"
-                  :data="{ catalogId: selectedKeys?.[0]?.toString() ?? '' }"
-                  multiple
-                  :show-file-list="false"
-                  @finish="onLoad()"
-                >
-                  <NButton type="primary">
-                    上传
-                  </NButton>
-                </NUpload>
-              </div>
-              <CrudBatchDeleteBtn
-                v-if="hasPermission('data:file:delete')"
-                @click="onBatchDelete"
-              />
+              <template v-if="selectedKeys.length">
+                <!-- TODO: 上传进度 -->
+                <div v-if="hasPermission('data:file:upload')">
+                  <NUpload
+                    action="/api/data/file/upload"
+                    :data="{ catalogId: selectedKeys?.[0]?.toString() ?? '' }"
+                    multiple
+                    :show-file-list="false"
+                    @finish="onLoad()"
+                  >
+                    <NButton type="primary">
+                      上传
+                    </NButton>
+                  </NUpload>
+                </div>
+                <CrudBatchDeleteBtn
+                  v-if="hasPermission('data:file:delete')"
+                  @click="onBatchDelete"
+                />
+              </template>
             </NFlex>
             <NFlex>
               <CrudSearch

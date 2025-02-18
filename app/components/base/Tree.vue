@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { DropdownOption, TreeOption, TreeProps } from 'naive-ui'
 
-const { data = [], loading = false, dropdownOptions = [], onBeforeContextmenu, defaultExpandAll = false } = defineProps<{
+const { cancelable = false, data = [], loading = false, dropdownOptions = [], onBeforeContextmenu, defaultExpandAll = false } = defineProps<{
+  cancelable?: boolean
   data?: TreeProps['data']
   defaultExpandAll?: boolean
   loading?: boolean
@@ -17,9 +18,7 @@ const emits = defineEmits<{
 
 const selectedKeys = defineModel<Array<number | string>>('selected-keys')
 function onUpdateSelectedKeys(keys: Array<number | string>) {
-  if (keys.length) {
-    selectedKeys.value = keys
-  }
+  selectedKeys.value = keys
 }
 function onUpdateExpandedKeys(
   keys: Array<string | number>,
@@ -72,6 +71,7 @@ function handleClickoutside(e: MouseEvent) {
     <NTree
       :selected-keys="selectedKeys"
       accordion
+      :cancelable
       block-line
       :data
       :default-expand-all

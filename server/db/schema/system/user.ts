@@ -1,35 +1,36 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import { drizzle } from 'drizzle-orm/mysql2'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const systemUser = d.sqliteTable('system_user', {
+export const systemUser = d.mysqlTable('system_user', {
   ...baseSchema,
 
   /**
    * 所属部门 ID，必填
    */
-  departmentId: d.integer(),
+  departmentId: d.int('department_id'),
 
   /**
    * 用户名，必填
    */
-  username: d.text().notNull(),
+  username: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 密码，必填
    */
-  password: d.text().notNull(),
+  password: d.varchar({ length: 255 }).notNull(),
 
   /**
    * 用户昵称
    */
-  nickname: d.text().notNull(),
+  nickname: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 手机号，长度 11 位
    */
-  phone: d.text({ length: 11 }),
+  phone: d.varchar({ length: 11 }),
 })
 
 export type SelectSystemUser = typeof systemUser.$inferSelect & {
@@ -43,4 +44,3 @@ export const insertSystemUserSchema = createInsertSchema(systemUser).extend({
 export const updateSystemUserSchema = insertSystemUserSchema.omit({ createdAt: true, updatedAt: true }).extend({
   roleIds: z.array(z.number()).optional().default([]),
 }).partial()
-export { batchDeleteSchema } from '../../base'

@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 const message = useMessage()
 const { user } = useUserSession()
-
 const formRef = ref()
 const model = ref<any>({})
-const loading = ref(false)
+
+const { error, execute, status } = useRequest('/api/person/changePassword', {
+  method: 'post',
+})
 
 async function onSave() {
   formRef.value.validate(async (errors: any) => {
@@ -12,20 +14,20 @@ async function onSave() {
       return
     }
 
-    loading.value = true
-    try {
-      await $fetch('/api/person/changePassword', {
-        method: 'POST',
-        body: model.value,
-      })
-      message.success('修改成功')
-      formRef.value.reset()
+    await execute({
+      body: model.value,
+    })
+
+    if (error.value) {
+      useErrorMessage(error)
+      return
     }
-    catch (error: any) {
-      message.error(error.data.message)
-    }
-    finally {
-      loading.value = false
+
+    message.success('修改成功')
+    model.value = {
+      oldPassword: '',
+      newPassword: '',
+      rePassword: '',
     }
   })
 }
@@ -61,7 +63,7 @@ async function onSave() {
       path="newPassword"
       :rule="[
         { required: true, message: '新密码必填' },
-        { validator: (_, val: string) => model.oldPassword !== val, message: '新密码不能与旧密码相同', trigger: ['input', 'change'] },
+        { validator: (_: any, val: string) => model.oldPassword !== val, message: '新密码不能与旧密码相同', trigger: ['input', 'change'] },
       ]"
     >
       <NInput
@@ -77,7 +79,7 @@ async function onSave() {
       path="rePassword"
       :rule="[
         { required: true, message: '重复密码必填' },
-        { validator: (_, val: string) => model.newPassword === val, message: '两次密码不一致', trigger: ['input', 'change'] },
+        { validator: (_: any, val: string) => model.newPassword === val, message: '两次密码不一致', trigger: ['input', 'change'] },
       ]"
     >
       <NInput
@@ -94,7 +96,7 @@ async function onSave() {
     >
       <NButton
         type="primary"
-        :loading
+        :loading="status === 'pending'"
         @click="onSave"
       >
         保存修改

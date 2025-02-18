@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-
+const { layout: { inverted } } = useAppConfig()
+const isDark = useDark()
 </script>
 
 <template>
-  <NTooltip>
+  <NTooltip :theme-overrides="isDark ? {} : { color: '#fff', textColor: '#333639' }">
     <template #trigger>
       <NButton
         href="https://github.com/Mikasa33/starter-nuxt"
@@ -16,6 +17,9 @@
         <Icon
           name="i-icon-park-outline-github-one"
           :size="16"
+          :class="{
+            'text-#fff': inverted && !isDark,
+          }"
         />
       </NButton>
     </template>

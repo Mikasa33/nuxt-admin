@@ -33,7 +33,8 @@ function convertToTree(data: any[]) {
 }
 
 const route = useRoute()
-
+const { layout: { inverted } } = useAppConfig()
+const isDark = useDark()
 const { data: menuData } = await useFetch('/api/person/menu')
 const options = computed(() => convertToTree(menuData.value as any[]))
 
@@ -43,7 +44,9 @@ watch(
   (path) => {
     active.value = path
   },
-  { immediate: true },
+  {
+    immediate: true,
+  },
 )
 
 function renderLabel(option: MenuOption) {
@@ -63,6 +66,7 @@ function renderLabel(option: MenuOption) {
     :collapsed-width="64"
     :collapsed-icon-size="20"
     :icon-size="16"
+    :inverted="inverted && !isDark"
     :options
     :render-label
   />

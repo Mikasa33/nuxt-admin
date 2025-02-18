@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-import type { NuxtError } from '#app'
 import type { ResultProps } from 'naive-ui'
 
 const { error } = defineProps<{
-  error?: NuxtError
+  error?: any
 }>()
 
+const err = computed(() => error?.data ?? error)
+
 const status = computed(() => {
-  if ([403, 404, 500, 418].includes(error?.statusCode ?? 0)) {
-    return error?.statusCode.toString() as ResultProps['status']
+  if ([403, 404, 500, 418].includes(err.value.statusCode ?? 0)) {
+    return err.value.statusCode?.toString() as ResultProps['status']
   }
   return 'warning'
 })
@@ -21,7 +22,7 @@ function goHome() {
 <template>
   <NResult
     :status
-    :title="error?.message"
+    :title="`${err.statusCode} - ${err.message}`"
     class="h-100vh w-full flex-center flex-col"
   >
     <template #footer>

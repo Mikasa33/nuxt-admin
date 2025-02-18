@@ -1,54 +1,26 @@
 {
   "version": "7",
-  "dialect": "sqlite",
+  "dialect": "mysql",
   "entries": [
     {
       "idx": 0,
-      "version": "6",
-      "when": 1737439122935,
-      "tag": "0000_first_nightshade",
+      "version": "5",
+      "when": 1739802872659,
+      "tag": "0000_spotty_shape",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "6",
-      "when": 1737439394747,
-      "tag": "0001_sturdy_gateway",
+      "version": "5",
+      "when": 1739804058662,
+      "tag": "0001_remarkable_shinko_yamashiro",
       "breakpoints": true
     },
     {
       "idx": 2,
-      "version": "6",
-      "when": 1737439419914,
-      "tag": "0002_unusual_joystick",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1737441172181,
-      "tag": "0003_violet_the_captain",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1737441179015,
-      "tag": "0004_eager_frank_castle",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1737441424262,
-      "tag": "0005_round_zzzax",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1737557760538,
-      "tag": "0006_marvelous_hercules",
+      "version": "5",
+      "when": 1739809036459,
+      "tag": "0002_mushy_the_liberteens",
       "breakpoints": true
     }
   ]

@@ -24,17 +24,31 @@ const { data, loading, title, pagination, searchKeyword, onAdd, onBatchDelete, o
   },
 })
 
-const { data: departmentData, loading: departmentLoading, title: departmentTitle, onLoad: onLoadDepartment, onAdd: onAddDepartment, onEdit: onEditDepartment, onDialogDelete: onDialogDeleteDepartment } = useCrud({
+const {
+  data: departmentData,
+  loading: departmentLoading,
+  title: departmentTitle,
+  onLoad: onLoadDepartment,
+  onAdd: onAddDepartment,
+  onEdit: onEditDepartment,
+  onDelete: onDeleteDepartment,
+  onDialogDelete: onDialogDeleteDepartment,
+} = useCrud({
   baseUrl: '/api/permission/department',
   title: '部门',
   listOptions: {
     pagination: false,
   },
   onFetchListSuccess: async (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-      onLoad()
+    // 如果当前没有选中部门，并且有部门数据，则选中第一个部门
+    if (!selectedKeys.value.length && data.length) {
+      selectedKeys.value = [data[0].id]
     }
+    // 如果删除的部门中包含当前选中的部门，则选中第一个部门
+    if (!data.find((item: any) => selectedKeys.value.includes(item.id)) && data.length) {
+      selectedKeys.value = [data[0].id]
+    }
+    onLoad()
   },
 })
 
@@ -83,6 +97,13 @@ function onBeforeContextmenu(option: TreeOption) {
   }
 
   const options: DropdownOption[] = []
+  if (hasPermission('permission:department:add')) {
+    options.push({
+      key: 'add',
+      label: '新增',
+      icon: renderIcon('i-icon-park-outline-plus'),
+    })
+  }
   if (hasPermission('permission:department:update')) {
     options.push({
       key: 'edit',
@@ -103,12 +124,25 @@ function onBeforeContextmenu(option: TreeOption) {
 
 function handleDropdownSelect(key: string | number, node: any) {
   switch (key) {
+    case 'add':
+      onAddDepartment({ parentId: node.id })
+      break
     case 'edit':
       onEditDepartment(node)
       break
-    case 'delete':
-      onDialogDeleteDepartment(node)
+    case 'delete': {
+      const d = onDialogDeleteDepartment(node, {
+        content: '此操作将会删除此部门中的所有子部门和用户，是否确认删除？',
+        negativeText: '保留用户',
+        positiveText: '全部删除',
+        onNegativeClick: async () => {
+          d.loading = true
+          await onDeleteDepartment(node, { retain: true })
+          d.loading = false
+        },
+      })
       break
+    }
   }
 }
 
@@ -219,6 +253,7 @@ function onChangePassword(row: any) {
               >
                 修改密码
               </CrudColumnBtn>
+              <!-- TODO: 转移部门 -->
               <CrudColumnBtn
                 v-if="hasPermission('permission:user:update')"
                 type="primary"

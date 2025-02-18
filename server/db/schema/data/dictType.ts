@@ -1,29 +1,29 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const dataDictType = d.sqliteTable('data_dict_type', {
+export const dataDictType = d.mysqlTable('data_dict_type', {
   ...baseSchema,
 
   /**
    * 父级 ID
    */
-  parentId: d.integer('parent_id'),
+  parentId: d.int('parent_id'),
 
   /**
    * 标识，必填
    */
-  slug: d.text().notNull(),
+  slug: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 名称，必填
    */
-  name: d.text().notNull(),
+  name: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 排序，默认值 0
    */
-  orderBy: d.integer('order_by').default(0),
+  orderBy: d.int('order_by').default(0),
 })
 
 export type SelectDataDictType = typeof dataDictType.$inferSelect

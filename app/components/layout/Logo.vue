@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-const { title, logo } = useAppConfig()
+const { title, logo, layout: { inverted } } = useAppConfig()
+const isDark = useDark()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 
@@ -16,6 +17,9 @@ const { collapsed } = storeToRefs(useAppStore())
     />
     <NH2
       v-show="!collapsed"
+      :class="{
+        'text-#fff': inverted && !isDark,
+      }"
       class="m-0"
     >
       {{ title }}

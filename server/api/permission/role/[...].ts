@@ -1,26 +1,23 @@
-import type { SelectSystemRoleMenu } from '~~/server/db/schema/system/roleMenu'
 import { eq, inArray } from 'drizzle-orm'
 import { insertSystemRoleSchema, systemRole, updateSystemRoleSchema } from '~~/server/db/schema/system/role'
 import { systemRoleMenu } from '~~/server/db/schema/system/roleMenu'
 import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
 export default defineEventHandler(async (event) => {
-  async function addOrUpdateAfter(data: any, type: 'add' | 'update') {
+  const db = await useDrizzle()
+
+  // 添加或更新角色后，更新角色菜单关联
+  async function addOrUpdateAfter(data: { id: number }, type: 'add' | 'update') {
     const { id, menuIds } = await readBody(event)
 
+    // 更新时删除旧的菜单
     if (type === 'update') {
-      await useDrizzle()
-        .delete(systemRoleMenu)
-        .where(eq(systemRoleMenu.roleId, Number(id)))
+      await db.delete(systemRoleMenu).where(eq(systemRoleMenu.roleId, Number(id)))
     }
 
-    if (data.length && menuIds?.length) {
-      const roleMenuList = await useDrizzle()
-        .insert(systemRoleMenu)
-        .values(menuIds.map((id: number) => ({ roleId: data[0].id, menuId: id })))
-        .returning()
-
-      data[0].menuIds = roleMenuList.map((item: SelectSystemRoleMenu) => item.menuId)
+    // 有菜单，则添加角色菜单关联
+    if (menuIds?.length) {
+      await db.insert(systemRoleMenu).values(menuIds.map((id: number) => ({ roleId: data.id, menuId: id })))
     }
   }
 
@@ -29,20 +26,18 @@ export default defineEventHandler(async (event) => {
     insertSchema: insertSystemRoleSchema,
     updateSchema: updateSystemRoleSchema,
     addOptions: {
+      // 新增后管理菜单
       after: data => addOrUpdateAfter(data, 'add'),
     },
     deleteOptions: {
+      // 删除后删除角色菜单和用户角色关联
       after: async (data: any) => {
-        await useDrizzle()
-          .delete(systemRoleMenu)
-          .where(inArray(systemRoleMenu.roleId, data.map((item: any) => item.id)))
-
-        await useDrizzle()
-          .delete(systemUserRole)
-          .where(inArray(systemUserRole.roleId, data.map((item: any) => item.id)))
+        await db.delete(systemRoleMenu).where(inArray(systemRoleMenu.roleId, data.id))
+        await db.delete(systemUserRole).where(inArray(systemUserRole.roleId, data.id))
       },
     },
     updateOptions: {
+      // 更新后管理菜单
       after: data => addOrUpdateAfter(data, 'update'),
     },
     pageOptions: {
@@ -52,12 +47,12 @@ export default defineEventHandler(async (event) => {
       },
     },
     infoOptions: {
+      // 查询后获取角色菜单
       after: async (data: any) => {
-        const roleMenuList = useDrizzle()
+        const roleMenuList = await db
           .select()
           .from(systemRoleMenu)
           .where(eq(systemRoleMenu.roleId, data.id))
-          .all()
 
         data.menuIds = roleMenuList.map(item => item.menuId)
       },

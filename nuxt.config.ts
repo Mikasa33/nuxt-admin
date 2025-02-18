@@ -70,5 +70,16 @@ export default defineNuxtConfig({
       '0 0 1 * *': ['system:log:clear'],
     },
   },
+  runtimeConfig: {
+    adminUsername: 'admin',
+    defaultDepartmentId: 1,
+    mysql: {
+      host: '',
+      port: 3306,
+      user: '',
+      password: '',
+      database: '',
+    },
+  },
   ssr: false,
 })

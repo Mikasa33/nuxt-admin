@@ -1,44 +1,44 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const systemMenu = d.sqliteTable('system_menu', {
+export const systemMenu = d.mysqlTable('system_menu', {
   ...baseSchema,
 
   /**
    * 父级 ID
    */
-  parentId: d.integer('parent_id'),
+  parentId: d.int('parent_id'),
 
   /**
    * 名称，必填
    */
-  name: d.text().notNull(),
+  name: d.varchar({ length: 32 }).notNull(),
 
   /**
    * 类型，必填
    */
-  type: d.text({ enum: ['catalog', 'menu', 'permission'] }).default('menu'),
+  type: d.mysqlEnum(['catalog', 'menu', 'permission']).default('menu'),
 
   /**
    * 标识，type 为 button 时必填
    */
-  slug: d.text(),
+  slug: d.varchar({ length: 255 }),
 
   /**
    * 图标
    */
-  icon: d.text(),
+  icon: d.varchar({ length: 64 }),
 
   /**
    * 路由
    */
-  router: d.text(),
+  router: d.varchar({ length: 255 }),
 
   /**
    * 排序，默认值 0
    */
-  orderBy: d.integer('order_by').default(0),
+  orderBy: d.int('order_by').default(0),
 })
 
 export type SelectSystemMenu = typeof systemMenu.$inferSelect

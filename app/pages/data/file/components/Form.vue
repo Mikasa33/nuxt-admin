@@ -1,24 +1,17 @@
 <script lang="ts" setup>
-const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext()
+const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
 
-const loading = ref(false)
-const catalogData = ref<any[]>([])
+const { data, error, execute, status } = useRequest('/api/data/fileCatalog/list')
+const catalogData = computed(() => buildTree(data.value?.filter((item: any) => model.value.id !== item.id) ?? []))
 
 watch(
   show,
   async (val) => {
     if (val) {
-      loading.value = true
-      try {
-        const data = await $fetch('/api/data/fileCatalog/list')
-        catalogData.value = buildTree(data)
-      }
-      catch (error: any) {
-        message.error(error.data.message)
-      }
-      finally {
-        loading.value = false
+      await execute()
+
+      if (error.value) {
+        useErrorMessage(error)
       }
     }
   },
@@ -28,6 +21,8 @@ watch(
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -41,13 +36,12 @@ watch(
       <NFormItem
         label="父级目录"
         path="parentId"
-        :rule="[{ required: true, type: 'number', message: '父级目录必填', trigger: ['input', 'change'] }]"
       >
         <NTreeSelect
           v-model:value="model.parentId"
           placeholder="请选择父级目录"
           clearable
-          :loading
+          :loading="status === 'pending'"
           key-field="id"
           label-field="name"
           :options="catalogData"

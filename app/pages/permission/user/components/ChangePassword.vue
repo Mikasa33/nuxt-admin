@@ -10,11 +10,14 @@ const message = useMessage()
 const formRef = ref()
 const model = ref<any>({})
 
+const { error, execute, status } = useRequest('/api/permission/user/changePassword', {
+  method: 'post',
+})
+
 watch(
   show,
   (val) => {
     if (val) {
-      formRef.value?.reset()
       model.value = propsModel
     }
   },
@@ -27,17 +30,17 @@ function onSave() {
       return
     }
 
-    try {
-      model.value = await $fetch('/api/permission/user/changePassword', {
-        method: 'post',
-        body: model.value,
-      }) as any
-      message.success('密码修改成功')
-      show.value = false
+    await execute({
+      body: model.value,
+    })
+
+    if (error.value) {
+      useErrorMessage(error)
+      return
     }
-    catch (error: any) {
-      message.error(error.data.message)
-    }
+
+    message.success('密码修改成功')
+    show.value = false
   })
 }
 </script>
@@ -45,6 +48,7 @@ function onSave() {
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="status === 'pending'"
     title="修改密码"
     @confirm="onSave"
   >

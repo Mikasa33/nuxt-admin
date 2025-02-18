@@ -3,6 +3,8 @@ import type { VNodeChild } from 'vue'
 
 const { closable = true, width = 500 } = defineProps<{
   closable?: boolean
+  confirmLoading?: boolean
+  loading?: boolean
   title: string
   width?: number | string
 }>()
@@ -39,8 +41,14 @@ function onConfirm() {
       :title
       :native-scrollbar="false"
       header-class="h-64px"
+      body-content-class="h-full"
     >
-      <slot />
+      <NSpin
+        :show="loading"
+        class="h-full"
+      >
+        <slot />
+      </NSpin>
 
       <template #footer>
         <NFlex>
@@ -48,6 +56,7 @@ function onConfirm() {
             取消
           </NButton>
           <NButton
+            :loading="confirmLoading"
             type="primary"
             @click="onConfirm"
           >

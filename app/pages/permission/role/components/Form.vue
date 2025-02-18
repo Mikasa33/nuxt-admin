@@ -1,24 +1,17 @@
 <script lang="ts" setup>
-const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext()
+const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
 
-const loading = ref(false)
-const menuData = ref<any[]>([])
+const { data, error, execute, status } = useRequest('/api/permission/menu/list')
+const menuData = computed(() => buildTree(data.value ?? []))
 
 watch(
   show,
   async (val) => {
     if (val) {
-      loading.value = true
-      try {
-        const data = await $fetch('/api/permission/menu/list')
-        menuData.value = buildTree(data)
-      }
-      catch (error: any) {
-        message.error(error.data.message)
-      }
-      finally {
-        loading.value = false
+      await execute()
+
+      if (error.value) {
+        useErrorMessage(error)
       }
     }
   },
@@ -28,6 +21,8 @@ watch(
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -75,6 +70,7 @@ watch(
             :data="menuData"
             key-field="id"
             label-field="name"
+            :loading="status === 'pending'"
             :selectable="false"
             class="w-full"
           />

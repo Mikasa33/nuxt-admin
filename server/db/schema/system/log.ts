@@ -1,40 +1,40 @@
-import * as d from 'drizzle-orm/sqlite-core'
+import * as d from 'drizzle-orm/mysql-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { omit } from 'lodash-es'
-import { baseSchema } from '../../base'
+import { baseSchema } from '../base'
 
-export const systemLog = d.sqliteTable('system_log', {
+export const systemLog = d.mysqlTable('system_log', {
   ...omit(baseSchema, ['updatedAt']),
 
   /**
    * 用户 ID，必填
    */
-  userId: d.integer('user_id'),
+  userId: d.int('user_id'),
 
   /**
    * 用户昵称，必填
    */
-  nickname: d.text(),
+  nickname: d.varchar({ length: 32 }),
 
   /**
    * 请求方法，必填
    */
-  method: d.text().notNull(),
+  method: d.varchar({ length: 10 }).notNull(),
 
   /**
    * 请求地址，必填
    */
-  router: d.text().notNull(),
+  router: d.varchar({ length: 255 }).notNull(),
 
   /**
    * 查询参数
    */
-  query: d.text({ mode: 'json' }),
+  query: d.json(),
 
   /**
    * 请求体
    */
-  body: d.text({ mode: 'json' }),
+  body: d.json(),
 })
 
 export type SelectSystemLog = typeof systemLog.$inferSelect

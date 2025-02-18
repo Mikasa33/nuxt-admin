@@ -1,5 +1,10 @@
 import { and, asc, count, desc, eq, getTableColumns, inArray, like, or } from 'drizzle-orm'
-import { deleteSchema as baseDeleteSchema } from '../db/base'
+import { deleteSchema as baseDeleteSchema } from '../db/schema/base'
+
+interface DeleteBody {
+  id: number[]
+  [key: string]: any
+}
 
 interface ListOrPageOptions {
   select?: Record<string, any>
@@ -12,18 +17,17 @@ interface ListOrPageOptions {
 
 interface CrudOptions {
   apis?: Array<'add' | 'delete' | 'update' | 'info' | 'list' | 'page'>
-  primaryKey?: string
   entity: any
   insertSchema?: any
   updateSchema?: any
   deleteSchema?: any
   addOptions?: {
-    after?: (options: any) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
+    after?: (options: { id: number }) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
     before?: (options: any) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
   }
   deleteOptions?: {
-    after?: (options: any) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
-    before?: (options: any) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
+    after?: (options: DeleteBody) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
+    before?: (options: DeleteBody) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
   }
   updateOptions?: {
     after?: (options: any) => void | Record<string, any> | Promise<void> | Promise<Record<string, any>>
@@ -100,7 +104,6 @@ function getOrderByColumns(entity: any, options: ListOrPageOptions) {
 export async function crud(options: CrudOptions) {
   const {
     apis = ['add', 'delete', 'update', 'info', 'list', 'page'],
-    primaryKey = 'id',
     entity,
     insertSchema,
     updateSchema,
@@ -114,24 +117,24 @@ export async function crud(options: CrudOptions) {
   } = options
 
   const event = useEvent()
+  const db = await useDrizzle()
 
   if (isMethod(event, 'POST')) {
     if (isApi(apis, 'add')) {
       await verify()
 
       const { after, before } = addOptions
-      const data = await readValidatedBody(event, insertSchema.parse)
+      const body = await readValidatedBody(event, insertSchema.parse)
 
-      await before?.(data)
+      await before?.(body)
 
-      const list = await useDrizzle()
-        .insert(entity)
-        .values(data)
-        .returning() as any
+      const [{ insertId }] = await db.insert(entity).values(body)
 
-      await after?.(list)
+      await after?.({ id: insertId })
 
-      return list[0]
+      return {
+        id: insertId,
+      }
     }
   }
   else if (isMethod(event, 'DELETE')) {
@@ -139,26 +142,21 @@ export async function crud(options: CrudOptions) {
       await verify()
 
       const { after, before } = deleteOptions
-      const data = await readValidatedBody(event, deleteSchema.parse)
+      const body: DeleteBody = await readValidatedBody(event, deleteSchema.parse)
 
-      if (!data[primaryKey]?.length) {
-        throw createError({ statusCode: 400, message: `${primaryKey} 不能为空` })
+      if (!body.id?.length) {
+        throw createError({ statusCode: 400, message: 'id 不能为空' })
       }
 
-      await before?.(data)
+      await before?.(body)
 
-      const list = await useDrizzle()
-        .delete(entity)
-        .where(inArray(entity[primaryKey], data[primaryKey]))
-        .returning({ id: entity[primaryKey] })
+      await db.delete(entity).where(inArray(entity.id, body.id))
 
-      if (!list.length) {
-        throw createError({ statusCode: 404, message: '数据不存在' })
+      await after?.(body)
+
+      return {
+        success: true,
       }
-
-      await after?.(list)
-
-      return list
     }
   }
   else if (isMethod(event, 'PUT')) {
@@ -166,23 +164,19 @@ export async function crud(options: CrudOptions) {
       await verify()
 
       const { after, before } = updateOptions
-      const data = await readValidatedBody(event, updateSchema.parse)
+      const body = await readValidatedBody(event, updateSchema.parse)
 
-      if (!data[primaryKey]) {
-        throw createError({ statusCode: 400, message: `${primaryKey} 不能为空` })
+      if (!body.id) {
+        throw createError({ statusCode: 400, message: 'id 不能为空' })
       }
 
-      await before?.(data)
+      await before?.(body)
 
-      const list = await useDrizzle()
-        .update(entity)
-        .set(data)
-        .where(eq(entity[primaryKey], Number(data[primaryKey])))
-        .returning() as any
+      await db.update(entity).set(body).where(eq(entity.id, Number(body.id)))
 
-      await after?.(list)
+      await after?.(body)
 
-      return list[0]
+      return body
     }
   }
   else if (isMethod(event, 'GET')) {
@@ -191,17 +185,13 @@ export async function crud(options: CrudOptions) {
     if (isApi(apis, 'info')) {
       await verify()
 
-      const { after } = infoOptions
+      const { after, select = getTableColumns(entity) } = infoOptions
 
-      if (!query[primaryKey]) {
-        throw createError({ statusCode: 400, message: `${primaryKey} 不能为空` })
+      if (!query.id) {
+        throw createError({ statusCode: 400, message: 'id 不能为空' })
       }
 
-      const info = useDrizzle()
-        .select()
-        .from(entity)
-        .where(eq(entity[primaryKey], Number(query[primaryKey])))
-        .get()
+      const [info] = await db.select(select).from(entity).where(eq(entity.id, Number(query.id)))
 
       if (!info) {
         throw createError({ statusCode: 404, message: '数据不存在' })
@@ -214,36 +204,33 @@ export async function crud(options: CrudOptions) {
     else if (isApi(apis, 'list')) {
       await verify()
 
-      return useDrizzle()
+      return db
         .select()
         .from(entity)
         .where(and(...getWhereColumns(entity, listOptions)))
         .orderBy(...getOrderByColumns(entity, listOptions))
-        .all()
     }
     else if (isApi(apis, 'page')) {
       await verify()
 
       const { page = 1, size = 10 } = query
 
-      const list = useDrizzle()
+      const list = await db
         .select(pageOptions.select ?? getTableColumns(entity))
         .from(entity)
         .where(and(...getWhereColumns(entity, pageOptions)))
         .orderBy(...getOrderByColumns(entity, pageOptions))
         .limit(Number(size))
         .offset((Number(page) - 1) * Number(size))
-        .all()
 
-      const countData = useDrizzle()
+      const [countData] = await db
         .select({ total: count() })
         .from(entity)
         .where(and(...getWhereColumns(entity, pageOptions)))
-        .get()
 
       return {
         list,
-        total: countData?.total,
+        total: countData.total,
       }
     }
   }

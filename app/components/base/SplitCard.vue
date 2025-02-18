@@ -14,7 +14,7 @@ const { defaultSize = '280px', max = 0.5, min = '220px', resizeTriggerSize = 24 
     :max
     :min
     :resize-trigger-size
-    class="h-full flex overflow-hidden rounded-16px transition-300 dark:bg-#18181d"
+    class="h-full flex overflow-hidden rounded-16px transition-300"
   >
     <template #1>
       <slot name="left" />
@@ -26,7 +26,7 @@ const { defaultSize = '280px', max = 0.5, min = '220px', resizeTriggerSize = 24 
 
     <template #resize-trigger>
       <NEl class="group h-full w-full flex-x-center">
-        <div class="h-full w-1px transition-300 group-active:w-2px group-hover:w-2px dark:bg-#ffffff17 group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
+        <div class="h-full w-1px transition-300 group-active:w-2px group-hover:w-2px group-active:bg-[var(--primary-color)] group-hover:bg-[var(--primary-color)]" />
       </NEl>
     </template>
   </NSplit>

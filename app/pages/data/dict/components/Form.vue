@@ -1,33 +1,12 @@
 <script lang="ts" setup>
-// const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext()
-
-// const loading = ref(false)
-// const dictType = ref<any[]>([])
-
-// watch(
-//   show,
-//   async (val) => {
-//     if (val) {
-//       loading.value = true
-//       try {
-//         const data = await $fetch('/api/system/dictType')
-//         dictType.value = buildTree(data)
-//       }
-//       catch (error: any) {
-//         message.error(error.data.message)
-//       }
-//       finally {
-//         loading.value = false
-//       }
-//     }
-//   },
-// )
+const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
 </script>
 
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -38,21 +17,6 @@ const { formRef, model, show, title, onSave } = useCrudContext()
       :model
       require-mark-placement="left"
     >
-      <!-- <NFormItem
-        label="父级类型"
-        path="parentId"
-        :rule="[{ required: true, message: '父级类型必填', trigger: ['input', 'change'] }]"
-      >
-        <NTreeSelect
-          v-model:value="model.parentId"
-          placeholder="请选择父级类型"
-          clearable
-          :loading
-          key-field="id"
-          label-field="name"
-          :options="dictType"
-        />
-      </NFormItem> -->
       <NFormItem
         label="类型标识"
         path="slug"

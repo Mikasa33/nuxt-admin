@@ -1,36 +1,36 @@
-import type { SelectSystemUser } from '~~/server/db/schema/system/user'
 import { eq } from 'drizzle-orm'
-import { omit, pick } from 'lodash-es'
+import { omit } from 'lodash-es'
 import { systemUser, updateSystemUserSchema } from '~~/server/db/schema/system/user'
-import { getPermissions, getRouters, getUserMenuList } from '../person/menu.get'
+import { updateUserSession } from '../auth/login.post'
 
 export default defineEventHandler(async (event) => {
   const data = await readValidatedBody(event, updateSystemUserSchema.parse)
 
+  const db = await useDrizzle()
+
   const { user } = await getUserSession(event)
   const userId = Number(user!.id)
 
-  const list: SelectSystemUser[] = await useDrizzle()
-    .update(systemUser)
+  // 更新用户信息，排除用户名和密码
+  await db.update(systemUser)
     .set({
-      ...omit(data, ['password', 'username']),
+      ...omit(data, ['username', 'password']),
       id: userId,
     })
     .where(eq(systemUser.id, userId))
-    .returning()
 
-  const menuList = await getUserMenuList({
-    userId: user!.id,
-    includePermission: true,
-  })
-
-  await replaceUserSession(event, {
-    user: {
-      ...pick(list[0], ['id', 'username', 'nickname']),
-      routers: getRouters(menuList),
-      permissions: getPermissions(menuList),
+  // 获取用户信息，排除密码
+  const userInfo = await db.query.systemUser.findFirst({
+    columns: {
+      password: false,
     },
+    where: eq(systemUser.id, userId),
   })
 
-  return list[0]
+  // 更新用户信息
+  await updateUserSession(userInfo)
+
+  return {
+    success: true,
+  }
 })

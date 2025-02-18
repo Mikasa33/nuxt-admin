@@ -5,8 +5,8 @@ export default defineTask({
     name: 'system:log:clear',
     description: '清空系统日志',
   },
-  run() {
-    clearLog()
+  async run() {
+    await clearLog()
 
     return {
       result: 'Success',

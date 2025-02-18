@@ -36,10 +36,15 @@ const { data: typeData, loading: typeLoading, title: typeTitle, onAdd: onAddType
     pagination: false,
   },
   onFetchListSuccess: (data: any) => {
-    if (!selectedKeys.value.length) {
-      selectedKeys.value = [data?.[0]?.id]
-      onLoad()
+    // 如果当前没有选中类型，并且有类型数据，则选中第一个类型
+    if (!selectedKeys.value.length && data.length) {
+      selectedKeys.value = [data[0].id]
     }
+    // 如果删除的类型中包含当前选中的类型，则选中第一个类型
+    if (!data.find((item: any) => selectedKeys.value.includes(item.id)) && data.length) {
+      selectedKeys.value = [data[0].id]
+    }
+    onLoad()
   },
 })
 
@@ -86,7 +91,7 @@ function handleDropdownSelect(key: string | number, node: any) {
       onEditType(node)
       break
     case 'delete':
-      onDialogDeleteType(node)
+      onDialogDeleteType(node, { content: '是否确认删除此类型，及类型中的所有字典？' })
       break
   }
 }
@@ -166,10 +171,7 @@ const columns: DataTableColumns = [
       </BaseCard>
     </template>
     <template #right>
-      <BaseCard
-        :title
-        class="rounded-bl-0 rounded-tl-0"
-      >
+      <BaseCard :title>
         <CrudTable
           :columns
           :data
@@ -177,17 +179,19 @@ const columns: DataTableColumns = [
         >
           <template #header>
             <NFlex>
-              <NButton
-                v-if="hasPermission('data:dict:add')"
-                type="primary"
-                @click="onAdd({ typeId: selectedKeys[0] })"
-              >
-                新增
-              </NButton>
-              <CrudBatchDeleteBtn
-                v-if="hasPermission('data:dict:delete')"
-                @click="onBatchDelete"
-              />
+              <template v-if="selectedKeys.length">
+                <NButton
+                  v-if="hasPermission('data:dict:add')"
+                  type="primary"
+                  @click="onAdd({ typeId: selectedKeys[0] })"
+                >
+                  新增
+                </NButton>
+                <CrudBatchDeleteBtn
+                  v-if="hasPermission('data:dict:delete')"
+                  @click="onBatchDelete"
+                />
+              </template>
             </NFlex>
             <NFlex>
               <CrudSearch

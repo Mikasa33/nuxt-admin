@@ -1,10 +1,28 @@
-import Database from 'better-sqlite3'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
+import type { MySqlDatabase } from 'drizzle-orm/mysql2'
+import process from 'node:process'
+import { drizzle } from 'drizzle-orm/mysql2'
+import mysql from 'mysql2/promise'
+import * as schema from '../db/schema'
 
-const sqlite = new Database('.data/db.sqlite3')
+let db: MySqlDatabase<any, any, typeof schema>
 
-export function useDrizzle() {
-  return drizzle({
-    client: sqlite,
+export async function useDrizzle() {
+  if (db) {
+    return db
+  }
+
+  const event = useEvent()
+  const config = useRuntimeConfig(event)
+
+  const connection = await mysql.createConnection(config.mysql)
+
+  db = drizzle({
+    casing: 'snake_case',
+    client: connection,
+    logger: process.env.NODE_ENV !== 'production',
+    mode: 'default',
+    schema,
   })
+
+  return db
 }

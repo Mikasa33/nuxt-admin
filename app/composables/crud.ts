@@ -1,4 +1,4 @@
-import type { PaginationProps } from 'naive-ui'
+import type { DialogOptions, DialogReactive, PaginationProps } from 'naive-ui'
 
 enum API {
   ADD = '/add',
@@ -121,7 +121,7 @@ interface UseCrudOptions {
   /**
    * 删除数据成功回调
    */
-  onDeleteSuccess?: (data: any) => void | Promise<void>
+  onDeleteSuccess?: (body: Record<string, any>) => void | Promise<void>
   /**
    * 获取数据失败回调
    */
@@ -164,9 +164,9 @@ interface UseCrudReturn {
   searchParams: Ref<Record<string, any>>
   title: Ref<string>
   onAdd: (defaultModel?: Record<string, any>) => void
-  onBatchDelete: (ids: number[]) => Promise<void>
-  onDelete: (model: Record<string, any>) => Promise<void>
-  onDialogDelete: (model: Record<string, any>) => Promise<void>
+  onBatchDelete: (ids: number[], body?: Record<string, any>) => Promise<void>
+  onDelete: (model: Record<string, any>, body?: Record<string, any>) => Promise<void>
+  onDialogDelete: (model: Record<string, any>, options?: DialogOptions) => DialogReactive
   onEdit: (model: Record<string, any>) => Promise<void>
   onLoad: () => Promise<void>
   onReload: () => Promise<void>
@@ -239,7 +239,9 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
 
   const formRef = ref()
   const formOptions = reactive<InternalFormOptions>({
+    loading: false,
     model: {},
+    saving: false,
     show: false,
     status: 'add',
     title: computed<string>(() => {
@@ -262,13 +264,13 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
   async function executeDelete(body: Record<string, any>) {
     listOptions.deleting = true
     try {
-      const data = await $fetch(`${baseUrl}${apis?.delete ?? API.DELETE}`, {
+      await $fetch(`${baseUrl}${apis?.delete ?? API.DELETE}`, {
         method: 'delete',
         body,
       })
 
       if (onDeleteSuccess) {
-        await onDeleteSuccess(data)
+        await onDeleteSuccess(body)
       }
       else {
         message.success(`${body[primaryKey].length > 1 ? '批量' : ''}删除成功`)
@@ -290,7 +292,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onDeleteError(error)
       }
       else {
-        message.error(error.data.message)
+        useErrorMessage(error)
       }
     }
     finally {
@@ -309,6 +311,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
       cloneBody = await onBeforeSave(cloneBody) ?? cloneBody
     }
 
+    formOptions.saving = true
     try {
       const data = await $fetch<Record<string, any>>(`${baseUrl}${formOptions.status === 'edit' ? apis?.update ?? API.UPDATE : apis?.add ?? API.ADD}`, {
         method: formOptions.status === 'edit' ? 'put' : 'post',
@@ -331,8 +334,11 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onSaveError(error)
       }
       else {
-        message.error(error.data.message)
+        useErrorMessage(error)
       }
+    }
+    finally {
+      formOptions.saving = false
     }
   }
 
@@ -357,7 +363,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchInfoError(error)
       }
       else {
-        message.error(error.data.message)
+        useErrorMessage(error)
       }
     }
     finally {
@@ -377,7 +383,6 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
       }
 
       const data = await $fetch<Record<string, any>[]>(`${baseUrl}${apis?.list ?? API.LIST}`, { params })
-
       listOptions.data = (await onFetchListSuccess?.(data)) ?? data
     }
     catch (error: any) {
@@ -385,7 +390,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        message.error(error.data.message)
+        useErrorMessage(error)
       }
     }
     finally {
@@ -419,7 +424,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        message.error(error.data.message)
+        useErrorMessage(error)
       }
     }
     finally {
@@ -433,7 +438,6 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param defaultModel 默认表单数据
    */
   function onAdd(defaultModel?: Record<string, any>) {
-    formRef.value?.reset?.()
     formOptions.status = 'add'
     formOptions.show = true
     formOptions.model = defaultModel ?? {} as any
@@ -444,8 +448,8 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    *
    * @param ids 数据主键数组
    */
-  async function onBatchDelete(ids: number[]) {
-    await executeDelete({ [primaryKey]: ids })
+  async function onBatchDelete(ids: number[], body?: Record<string, any>) {
+    await executeDelete({ [primaryKey]: ids, ...body })
   }
 
   /**
@@ -453,8 +457,8 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    *
    * @param model 数据
    */
-  async function onDelete(model: Record<string, any>) {
-    await executeDelete({ [primaryKey]: [model[primaryKey]] })
+  async function onDelete(model: Record<string, any>, body?: Record<string, any>) {
+    await executeDelete({ [primaryKey]: [model[primaryKey]], ...body })
   }
 
   /**
@@ -462,15 +466,17 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    *
    * @param model 数据
    */
-  async function onDialogDelete(model: Record<string, any>) {
+  function onDialogDelete(model: Record<string, any>, options: DialogOptions = {}) {
     const d = dialog.create({
       content: '是否确认删除此数据？',
+      ...options,
       onPositiveClick: async () => {
         d.loading = true
         await onDelete(model)
         d.loading = false
       },
     })
+    return d
   }
 
   /**
@@ -479,7 +485,6 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param model 数据
    */
   async function onEdit(model: Record<string, any>) {
-    formRef.value?.reset?.()
     formOptions.status = 'edit'
     formOptions.show = true
     await fetchInfo(model)
@@ -511,19 +516,14 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * 保存数据
    */
   async function onSave() {
-    formOptions.saving = true
-    try {
-      await formRef.value?.validate?.()
-    }
-    catch {
-      message.warning('表单填写有误')
-      return
-    }
-    finally {
-      formOptions.saving = false
-    }
+    formRef.value.validate(async (errors: any) => {
+      if (errors) {
+        message.error('表单填写有误')
+        return
+      }
 
-    await executeSave(formOptions.model)
+      await executeSave(formOptions.model)
+    })
   }
 
   onMounted(() => {

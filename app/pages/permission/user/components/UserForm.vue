@@ -1,26 +1,18 @@
 <script lang="ts" setup>
-const message = useMessage()
-const { formRef, model, show, title, onSave } = useCrudContext({
+const { formRef, loading, model, show, saving, title, onSave } = useCrudContext({
   key: 'user',
 })
 
-const loading = ref(false)
-const roleData = ref<any[]>([])
+const { data, error, execute, status } = useRequest('/api/permission/role/list')
 
 watch(
   show,
   async (val) => {
     if (val) {
-      loading.value = true
-      try {
-        const data = await $fetch('/api/permission/role/list')
-        roleData.value = data
-      }
-      catch (error: any) {
-        message.error(error.model.message)
-      }
-      finally {
-        loading.value = false
+      await execute()
+
+      if (error.value) {
+        useErrorMessage(error)
       }
     }
   },
@@ -30,6 +22,8 @@ watch(
 <template>
   <CrudDrawerForm
     v-model:show="show"
+    :confirm-loading="saving"
+    :loading
     :title
     @confirm="onSave"
   >
@@ -102,8 +96,9 @@ watch(
           v-model:value="model.roleIds"
           placeholder="请选择角色"
           clearable
-          :options="roleData"
+          :options="data"
           label-field="name"
+          :loading="status === 'pending'"
           value-field="id"
           multiple
         />

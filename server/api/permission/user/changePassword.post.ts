@@ -10,13 +10,19 @@ const schema = z.object({
 export default defineEventHandler(async (event) => {
   await verifyPermission('system:user:changePassword')
 
+  const db = await useDrizzle()
+
   const data = await readValidatedBody(event, schema.parse)
-  return useDrizzle()
-    .update(systemUser)
+
+  // 修改密码
+  db.update(systemUser)
     .set({
       id: data.id,
       password: await hashPassword(data.password),
     })
     .where(eq(systemUser.id, Number(data.id)))
-    .returning()
+
+  return {
+    success: true,
+  }
 })

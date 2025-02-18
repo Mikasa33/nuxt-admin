@@ -1,4 +1,3 @@
-import type { SelectDataFile } from '~~/server/db/schema/data/file'
 import { Buffer } from 'node:buffer'
 import dayjs from 'dayjs'
 import fs from 'fs-extra'
@@ -7,29 +6,43 @@ import { dataFile } from '~~/server/db/schema/data/file'
 export default defineEventHandler(async (event) => {
   await verifyPermission('data:file:upload')
 
+  const db = await useDrizzle()
+
   const formData = await readFormData(event)
+
   const file = formData.get('file') as File
   if (!file) {
     throw createError({ statusCode: 500, message: '文件不能为空' })
   }
-  const name = `${dayjs().valueOf()}_${file.name}`
-  const path = `/upload/${name}`
-  const url = `${getRequestProtocol(event)}://${getRequestHost(event)}${path}`
-  const list: SelectDataFile[] = await useDrizzle()
-    .insert(dataFile)
-    .values({
-      catalogId: Number(formData.get('catalogId')) || null,
-      name,
-      size: file.size,
-      type: file.type,
-      filename: file.name,
-      path,
-      url,
-    })
-    .returning()
 
+  const catalogId = formData.get('catalogId')
+  if (!catalogId) {
+    throw createError({ statusCode: 500, message: '文件目录不能为空' })
+  }
+
+  // 生成文件名
+  const name = `${dayjs().valueOf()}_${file.name}`
+  // 生成文件保存路径
+  const path = `/upload/${name}`
+  // 生成文件 URL
+  const url = `${getRequestProtocol(event)}://${getRequestHost(event)}${path}`
+
+  // 插入文件数据
+  const [{ insertId }] = await db.insert(dataFile).values({
+    catalogId: Number(catalogId),
+    name,
+    size: file.size,
+    type: file.type,
+    filename: file.name,
+    path,
+    url,
+  })
+
+  // 保存文件到磁盘
   const buffer = Buffer.from(await file.arrayBuffer())
   fs.outputFileSync(`public${path}`, buffer)
 
-  return list[0]
+  return {
+    id: insertId,
+  }
 })

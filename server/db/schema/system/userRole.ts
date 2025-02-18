@@ -1,18 +1,18 @@
-import * as d from 'drizzle-orm/sqlite-core'
-import { baseSchema } from '../../base'
+import * as d from 'drizzle-orm/mysql-core'
+import { baseSchema } from '../base'
 
-export const systemUserRole = d.sqliteTable('system_user_role', {
+export const systemUserRole = d.mysqlTable('system_user_role', {
   ...baseSchema,
 
   /**
    * 用户 ID，必填
    */
-  userId: d.integer('user_id').notNull(),
+  userId: d.int('user_id').notNull(),
 
   /**
    * 角色 ID，必填
    */
-  roleId: d.integer('role_id').notNull(),
+  roleId: d.int('role_id').notNull(),
 })
 
 export type SelectSystemUserRole = typeof systemUserRole.$inferSelect

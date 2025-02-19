@@ -8,15 +8,15 @@ export default defineEventHandler(async (event) => {
 
   // 添加或更新角色后，更新角色菜单关联
   async function addOrUpdateAfter(data: { id: number }, type: 'add' | 'update') {
-    const { id, menuIds } = await readBody(event)
+    const { id, menuIds = [] } = await readBody(event)
 
-    // 更新时删除旧的菜单
+    // 更新时，删除旧的菜单
     if (type === 'update') {
       await db.delete(systemRoleMenu).where(eq(systemRoleMenu.roleId, Number(id)))
     }
 
     // 有菜单，则添加角色菜单关联
-    if (menuIds?.length) {
+    if (menuIds.length) {
       await db.insert(systemRoleMenu).values(menuIds.map((id: number) => ({ roleId: data.id, menuId: id })))
     }
   }

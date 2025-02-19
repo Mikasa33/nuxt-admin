@@ -10,15 +10,15 @@ export default defineEventHandler(async (event) => {
 
   // 新增或更新后，更新用户角色关联
   async function addOrUpdateAfter(data: { id: number }, type: 'add' | 'update') {
-    const { id, roleIds } = await readBody(event)
+    const { id, roleIds = [] } = await readBody(event)
 
-    // 更新时删除旧的角色
+    // 更新时，删除旧的角色
     if (type === 'update') {
       await db.delete(systemUserRole).where(eq(systemUserRole.userId, Number(id)))
     }
 
     // 有角色，则添加用户角色关联
-    if (roleIds?.length) {
+    if (roleIds.length) {
       await db.insert(systemUserRole).values(roleIds.map((id: number) => ({ userId: data.id, roleId: id })))
     }
   }

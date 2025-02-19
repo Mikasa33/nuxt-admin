@@ -1,4 +1,5 @@
 import { inArray } from 'drizzle-orm'
+import { systemUserRole } from '~~/server/db/schema'
 import { insertSystemDepartmentSchema, systemDepartment, updateSystemDepartmentSchema } from '~~/server/db/schema/system/department'
 import { systemUser } from '~~/server/db/schema/system/user'
 
@@ -39,7 +40,12 @@ export default defineEventHandler(async (event) => {
             .where(inArray(systemUser.departmentId, descendantDepartments))
         }
         else {
+          // 查询所有子孙用户
+          const users = await db.select().from(systemUser).where(inArray(systemUser.departmentId, descendantDepartments))
+          // 删除所有子孙用户
           await db.delete(systemUser).where(inArray(systemUser.departmentId, descendantDepartments))
+          // 删除所有子孙用户角色关联
+          await db.delete(systemUserRole).where(inArray(systemUserRole.userId, users.map(user => user.id)))
         }
       },
       // 删除前

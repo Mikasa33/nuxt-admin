@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-const { layout: { inverted } } = useAppConfig()
 const isDark = useDark()
 </script>
 
@@ -15,9 +14,6 @@ const isDark = useDark()
         <Icon
           :name="isDark ? 'i-icon-park-outline-moon' : 'i-icon-park-outline-sun-one'"
           :size="16"
-          :class="{
-            'text-#fff': inverted && !isDark,
-          }"
         />
       </NButton>
     </template>

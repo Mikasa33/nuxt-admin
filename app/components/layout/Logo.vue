@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-const { title, logo, layout: { inverted } } = useAppConfig()
-const isDark = useDark()
+const { title, logo } = useAppConfig()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 
@@ -8,7 +7,7 @@ const { collapsed } = storeToRefs(useAppStore())
   <NuxtLink
     to="/"
     :class="collapsed ? 'w-64px' : 'w-240px'"
-    class="h-full flex-center gap-x-8px"
+    class="h-full flex-center gap-x-8px transition-300"
   >
     <NImage
       preview-disabled
@@ -17,9 +16,6 @@ const { collapsed } = storeToRefs(useAppStore())
     />
     <NH2
       v-show="!collapsed"
-      :class="{
-        'text-#fff': inverted && !isDark,
-      }"
       class="m-0"
     >
       {{ title }}

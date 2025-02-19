@@ -5,8 +5,6 @@ import { NuxtLink } from '#components'
 const dialog = useCustomDialog()
 const message = useMessage()
 const { loggedIn, user, clear } = useUserSession()
-const { layout: { inverted } } = useAppConfig()
-const isDark = useDark()
 
 const options = [
   {
@@ -79,11 +77,7 @@ function onSelect(key: string) {
             {{ (user?.nickname ?? user?.username)?.slice(0, 1) }}
           </template>
         </NAvatar>
-        <span
-          :class="{
-            'text-#fff': inverted && !isDark,
-          }"
-        >
+        <span>
           {{ user?.nickname ?? user?.username }}
         </span>
       </NEl>

@@ -94,7 +94,7 @@ defineExpose({
 
 <template>
   <div class="h-full flex flex-col">
-    <div class="mb-12px flex-y-center justify-between">
+    <div class="mb-12px flex-y-center flex-wrap justify-between gap-12px">
       <slot name="header" />
     </div>
     <NDataTable

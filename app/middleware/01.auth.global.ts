@@ -1,14 +1,20 @@
 export default defineNuxtRouteMiddleware((to) => {
+  const { isAdmin } = useApp()
+
+  if (!isAdmin.value) {
+    return
+  }
+
   const { loggedIn } = useUserSession()
 
   if (loggedIn.value) {
-    if (to.path === '/login') {
-      return navigateTo('/', { redirectCode: 301 })
+    if (to.path === '/admin/login') {
+      return navigateTo('/admin', { redirectCode: 301 })
     }
   }
   else {
     if (to.meta.auth || isUndefined(to.meta.auth)) {
-      return navigateTo('/login', { redirectCode: 301 })
+      return navigateTo('/admin/login', { redirectCode: 301 })
     }
   }
 })

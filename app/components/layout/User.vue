@@ -10,7 +10,7 @@ const options = [
   {
     icon: renderIcon('i-icon-park-outline-user'),
     label: '个人中心',
-    key: '/person',
+    key: '/admin/person',
   },
   {
     type: 'divider',
@@ -43,7 +43,7 @@ function onSelect(key: string) {
           d.loading = true
           if (!loggedIn.value) {
             message.success('退出登录成功')
-            navigateTo('/login')
+            navigateTo('/admin/login')
           }
         },
       })

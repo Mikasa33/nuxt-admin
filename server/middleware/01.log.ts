@@ -11,11 +11,13 @@ export default defineEventHandler(async (event) => {
   if (method !== 'GET') {
     body = cloneDeep(await readBody(event))
 
-    if (pathname === '/api/auth/login') {
+    // 管理员登录接口不记录明文密码
+    if (pathname === '/api/admin/auth/login') {
       body.password = '******'
     }
 
-    if (pathname === '/api/data/file/upload') {
+    // 管理员文件上传接口不记录文件内容
+    if (pathname === '/api/admin/data/file/upload') {
       body = {}
     }
   }

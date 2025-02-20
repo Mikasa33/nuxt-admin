@@ -16,6 +16,7 @@ interface ListOrPageOptions {
 }
 
 interface CrudOptions {
+  prefix?: string
   apis?: Array<'add' | 'delete' | 'update' | 'info' | 'list' | 'page'>
   entity: any
   insertSchema?: any
@@ -41,10 +42,10 @@ interface CrudOptions {
   pageOptions?: ListOrPageOptions
 }
 
-async function verify() {
+async function verify(prefix: string) {
   const event = useEvent()
   let { pathname } = getRequestURL(event)
-  pathname = pathname.replace('/api', '').replace('/', ':')
+  pathname = pathname.replace(prefix, '').replace('/', ':')
   await verifyPermission(pathname)
 }
 
@@ -103,6 +104,7 @@ function getOrderByColumns(entity: any, options: ListOrPageOptions) {
 
 export async function crud(options: CrudOptions) {
   const {
+    prefix = '/api',
     apis = ['add', 'delete', 'update', 'info', 'list', 'page'],
     entity,
     insertSchema,
@@ -121,7 +123,7 @@ export async function crud(options: CrudOptions) {
 
   if (isMethod(event, 'POST')) {
     if (isApi(apis, 'add')) {
-      await verify()
+      await verify(prefix)
 
       const { after, before } = addOptions
       const body = await readValidatedBody(event, insertSchema.parse)
@@ -139,7 +141,7 @@ export async function crud(options: CrudOptions) {
   }
   else if (isMethod(event, 'DELETE')) {
     if (isApi(apis, 'delete')) {
-      await verify()
+      await verify(prefix)
 
       const { after, before } = deleteOptions
       const body: DeleteBody = await readValidatedBody(event, deleteSchema.parse)
@@ -161,7 +163,7 @@ export async function crud(options: CrudOptions) {
   }
   else if (isMethod(event, 'PUT')) {
     if (isApi(apis, 'update')) {
-      await verify()
+      await verify(prefix)
 
       const { after, before } = updateOptions
       const body = await readValidatedBody(event, updateSchema.parse)
@@ -183,7 +185,7 @@ export async function crud(options: CrudOptions) {
     const query = getQuery(event)
 
     if (isApi(apis, 'info')) {
-      await verify()
+      await verify(prefix)
 
       const { after, select = getTableColumns(entity) } = infoOptions
 
@@ -202,7 +204,7 @@ export async function crud(options: CrudOptions) {
       return info
     }
     else if (isApi(apis, 'list')) {
-      await verify()
+      await verify(prefix)
 
       return db
         .select()
@@ -211,7 +213,7 @@ export async function crud(options: CrudOptions) {
         .orderBy(...getOrderByColumns(entity, listOptions))
     }
     else if (isApi(apis, 'page')) {
-      await verify()
+      await verify(prefix)
 
       const { page = 1, size = 10 } = query
 

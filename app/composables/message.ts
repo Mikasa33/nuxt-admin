@@ -1,9 +1,9 @@
 import { useMessage } from 'naive-ui'
 
-export function useErrorMessage() {
+export function useCustomMessage() {
   const message = useMessage()
 
-  function showError(error: any) {
+  function error(error: any) {
     const msg = toValue(error)?.data?.message
     if (msg) {
       message.error(msg)
@@ -11,6 +11,6 @@ export function useErrorMessage() {
   }
 
   return {
-    showError,
+    error,
   }
 }

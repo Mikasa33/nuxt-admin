@@ -1,4 +1,4 @@
-import { clearLog } from '~~/server/api/system/log/clear.post'
+import { clearLog } from '~~/server/api/admin/system/log/clear.post'
 
 export default defineTask({
   meta: {

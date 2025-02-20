@@ -182,7 +182,7 @@ interface UseCrudContextReturn {
 
 export function useCrud(options: UseCrudOptions): UseCrudReturn {
   const message = useMessage()
-  const { showError } = useErrorMessage()
+  const { error: showError } = useCustomMessage()
   const dialog = useCustomDialog()
 
   const {

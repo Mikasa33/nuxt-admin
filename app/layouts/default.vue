@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { layout } = useAppConfig()
+const { admin: { layout } } = useAppConfig()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 

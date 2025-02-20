@@ -6,10 +6,10 @@ export const usePermissionStore = defineStore(
     const permissions = ref<string[]>([])
 
     async function fetch() {
-      const data = await $fetch('/api/person/permission')
+      const data = await $fetch('/api/admin/person/permission')
       ready.value = true
-      routes.value = data.routes
-      permissions.value = data.permissions
+      routes.value = data.routes ?? []
+      permissions.value = data.permissions ?? []
     }
 
     return {

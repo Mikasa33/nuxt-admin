@@ -6,7 +6,7 @@ import { getPermissions, getRouters, getUserMenuList } from '../person/menu.get'
 export default defineEventHandler(async (event) => {
   const form: any = await readBody(event)
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   // 根据用户名查询用户信息
   const userInfo = await db.query.systemUser.findFirst({

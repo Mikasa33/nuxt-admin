@@ -4,7 +4,7 @@ import { insertSystemDepartmentSchema, systemDepartment, updateSystemDepartmentS
 import { systemUser } from '~~/server/db/schema/system/user'
 
 export default defineEventHandler(async (event) => {
-  const db = await useDrizzle()
+  const db = await drizzle()
   const { defaultDepartmentId } = useRuntimeConfig(event)
 
   return crud({

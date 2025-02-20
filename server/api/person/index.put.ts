@@ -6,7 +6,7 @@ import { updateUserSession } from '../auth/login.post'
 export default defineEventHandler(async (event) => {
   const data = await readValidatedBody(event, updateSystemUserSchema.parse)
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   const { user } = await getUserSession(event)
   const userId = Number(user!.id)

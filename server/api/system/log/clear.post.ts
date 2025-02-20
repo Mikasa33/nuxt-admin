@@ -2,7 +2,7 @@ import { systemLog } from '~~/server/db/schema/system/log'
 
 // 清空系统日志
 export async function clearLog() {
-  const db = await useDrizzle()
+  const db = await drizzle()
   await db.delete(systemLog)
 }
 

@@ -3,7 +3,7 @@ import { insertSystemMenuSchema, systemMenu, updateSystemMenuSchema } from '~~/s
 import { systemRoleMenu } from '~~/server/db/schema/system/roleMenu'
 
 export default defineEventHandler(async () => {
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   return crud({
     apis: ['add', 'delete', 'update', 'info', 'list'],

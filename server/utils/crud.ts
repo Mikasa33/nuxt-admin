@@ -117,7 +117,7 @@ export async function crud(options: CrudOptions) {
   } = options
 
   const event = useEvent()
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   if (isMethod(event, 'POST')) {
     if (isApi(apis, 'add')) {

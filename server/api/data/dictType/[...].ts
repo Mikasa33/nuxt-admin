@@ -3,7 +3,7 @@ import { dataDict } from '~~/server/db/schema/data/dict'
 import { dataDictType, insertDataDictTypeSchema, updateDataDictTypeSchema } from '~~/server/db/schema/data/dictType'
 
 export default defineEventHandler(async () => {
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   return crud({
     entity: dataDictType,

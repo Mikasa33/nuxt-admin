@@ -4,7 +4,7 @@ import { systemRoleMenu } from '~~/server/db/schema/system/roleMenu'
 import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
 export default defineEventHandler(async (event) => {
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   // 添加或更新角色后，更新角色菜单关联
   async function addOrUpdateAfter(data: { id: number }, type: 'add' | 'update') {

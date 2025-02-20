@@ -1,12 +1,12 @@
 import type { MySqlDatabase } from 'drizzle-orm/mysql2'
 import process from 'node:process'
-import { drizzle } from 'drizzle-orm/mysql2'
+import { drizzle as dz } from 'drizzle-orm/mysql2'
 import mysql from 'mysql2/promise'
 import * as schema from '../db/schema'
 
 let db: MySqlDatabase<any, any, typeof schema>
 
-export async function useDrizzle() {
+export async function drizzle() {
   if (db) {
     return db
   }
@@ -16,7 +16,7 @@ export async function useDrizzle() {
 
   const connection = await mysql.createConnection(config.mysql)
 
-  db = drizzle({
+  db = dz({
     casing: 'snake_case',
     client: connection,
     logger: process.env.NODE_ENV !== 'production',

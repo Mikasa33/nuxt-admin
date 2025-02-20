@@ -4,7 +4,7 @@ import { systemUser } from '~~/server/db/schema/system/user'
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   // 获取用户信息，排除密码
   const user = await db.query.systemUser.findFirst({

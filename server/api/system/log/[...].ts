@@ -7,7 +7,7 @@ export default defineEventHandler(async () => {
     pageOptions: {
       keywordLike: ['nickname', 'router'],
       orderBy: {
-        id: 'asc',
+        createdAt: 'desc',
       },
     },
   })

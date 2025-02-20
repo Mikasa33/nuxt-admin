@@ -9,7 +9,7 @@ import { systemUserRole } from '~~/server/db/schema/system/userRole'
 export async function getUserMenuList(options: { userId: number, username: string, includePermission?: boolean }) {
   const { userId, username, includePermission = false } = options
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   // 超级管理员，获取所有菜单和权限列表
   if (isAdmin(username)) {

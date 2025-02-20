@@ -10,7 +10,7 @@ const schema = z.object({
 export default defineEventHandler(async (event) => {
   await verifyPermission('system:user:changePassword')
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   const data = await readValidatedBody(event, schema.parse)
 

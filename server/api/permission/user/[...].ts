@@ -5,7 +5,7 @@ import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
 export default defineEventHandler(async (event) => {
   const { departmentId } = getQuery(event)
-  const db = await useDrizzle()
+  const db = await drizzle()
   const { adminUsername } = useRuntimeConfig(event)
 
   // 新增或更新后，更新用户角色关联

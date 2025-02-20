@@ -4,7 +4,7 @@ import { dataFile } from '~~/server/db/schema/data/file'
 import { dataFileCatalog, insertDataFileCatalogSchema, updateDataFileCatalogSchema } from '~~/server/db/schema/data/fileCatalog'
 
 export default defineEventHandler(async () => {
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   return crud({
     entity: dataFileCatalog,

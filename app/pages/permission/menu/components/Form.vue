@@ -2,7 +2,7 @@
 import type { SelectOption } from 'naive-ui'
 import { Icon } from '#components'
 import { metadata } from '@iconify-json/icon-park-outline'
-import { typeOptions } from '../utils/dict'
+import { typeOptions } from '../utils/constants'
 
 const iconOptions: SelectOption[] = []
 for (const key in metadata.categories) {

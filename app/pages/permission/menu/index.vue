@@ -2,7 +2,7 @@
 import type { DataTableColumns } from 'naive-ui'
 import { Icon } from '#components'
 import Form from './components/Form.vue'
-import { typeOptions } from './utils/dict'
+import { typeOptions } from './utils/constants'
 
 const { hasPermission } = usePermission()
 
@@ -52,6 +52,11 @@ const columns: DataTableColumns = [
     title: '权限标识',
     align: 'center',
     width: 200,
+  },
+  {
+    key: 'orderBy',
+    title: '排序',
+    align: 'center',
   },
   {
     key: 'updatedAt',

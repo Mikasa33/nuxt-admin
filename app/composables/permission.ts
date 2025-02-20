@@ -1,6 +1,5 @@
 export function usePermission() {
-  const { user } = useUserSession()
-  const permissions = computed(() => user.value?.permissions || [])
+  const { permissions } = storeToRefs(usePermissionStore())
 
   /**
    * 判断当前用户是否有某项权限

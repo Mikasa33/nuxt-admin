@@ -12,7 +12,7 @@ export async function getUserMenuList(options: { userId: number, username: strin
   const db = await drizzle()
 
   // 超级管理员，获取所有菜单和权限列表
-  if (isAdmin(username)) {
+  if (isRoot(username)) {
     return db
       .select(getTableColumns(systemMenu))
       .from(systemMenu)
@@ -37,7 +37,7 @@ export async function getUserMenuList(options: { userId: number, username: strin
 }
 
 // 获取路由
-export function getRouters(menuList: SelectSystemMenu[]) {
+export function getRoutes(menuList: SelectSystemMenu[]) {
   return menuList.filter(item => !!item.router).map(item => item.router) as string[]
 }
 

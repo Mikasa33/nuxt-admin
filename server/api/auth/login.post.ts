@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { pick } from 'lodash-es'
 import { systemUser } from '~~/server/db/schema/system/user'
-import { getPermissions, getRouters, getUserMenuList } from '../person/menu.get'
+import { getPermissions, getRoutes, getUserMenuList } from '../person/menu.get'
 
 export default defineEventHandler(async (event) => {
   const form: any = await readBody(event)
@@ -42,19 +42,18 @@ export async function updateUserSession(user: any) {
 
   // 获取用户菜单和权限列表
   const menuList = await getUserMenuList({
-    userId: user.id,
-    username: user.username,
+    userId: userInfo.id,
+    username: userInfo.username,
     includePermission: true,
   })
 
-  // 更新用户信息、路由信息、权限信息
+  // 更新用户信息
   await replaceUserSession(event, {
-    user: {
-      ...userInfo,
-      routers: getRouters(menuList),
+    user: userInfo,
+    secure: {
+      routes: getRoutes(menuList),
       permissions: getPermissions(menuList),
     },
-    secure: {},
     loggedInAt: new Date(),
   })
 }

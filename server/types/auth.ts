@@ -4,8 +4,6 @@ declare module '#auth-utils' {
     username: string
     nickname?: string
     avatar?: string
-    routers?: string[]
-    permissions?: string[]
   }
 
   interface UserSession {
@@ -13,7 +11,8 @@ declare module '#auth-utils' {
   }
 
   interface SecureSessionData {
-
+    routes: string[]
+    permissions: string[]
   }
 }
 

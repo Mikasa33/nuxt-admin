@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
         const departments = await db.select().from(systemDepartment)
 
         // 查询所有子孙部门
-        const descendantDepartments: number[] = [...data.id]
+        const descendantDepartments: number[] = [...data.ids]
         function findChildDepartments(ids: number[]) {
           const childDepartmentIds = departments.filter(department => department.parentId && ids.includes(department.parentId)).map(department => department.id)
           if (childDepartmentIds.length) {
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
             findChildDepartments(childDepartmentIds)
           }
         }
-        findChildDepartments(data.id)
+        findChildDepartments(data.ids)
 
         // 删除所有子孙部门
         await db.delete(systemDepartment).where(inArray(systemDepartment.parentId, descendantDepartments))
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
       // 删除前
       before: async (data) => {
         // 是根部门，抛出异常
-        if (data.id.includes(defaultDepartmentId)) {
+        if (data.ids.includes(defaultDepartmentId)) {
           throw createError({ statusCode: 500, message: '无法删除根部门' })
         }
       },

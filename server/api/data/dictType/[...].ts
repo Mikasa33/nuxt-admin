@@ -16,7 +16,7 @@ export default defineEventHandler(async () => {
         const types = await db.select().from(dataDictType)
 
         // 查询所有子孙字典类型
-        const descendantTypes: number[] = [...data.id]
+        const descendantTypes: number[] = [...data.ids]
         function findChildTypes(ids: number[]) {
           const childTypeIds = types.filter(type => type.parentId && ids.includes(type.parentId)).map(type => type.id)
           if (childTypeIds.length) {
@@ -24,7 +24,7 @@ export default defineEventHandler(async () => {
             findChildTypes(childTypeIds)
           }
         }
-        findChildTypes(data.id)
+        findChildTypes(data.ids)
 
         // 删除所有子孙字典类型
         await db.delete(dataDictType).where(inArray(dataDictType.parentId, descendantTypes))

@@ -19,5 +19,5 @@ export const baseSchema = {
 }
 
 export const deleteSchema = z.object({
-  id: z.array(z.number()),
+  ids: z.array(z.number()),
 }).passthrough()

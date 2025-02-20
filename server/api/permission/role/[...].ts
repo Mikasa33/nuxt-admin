@@ -32,8 +32,8 @@ export default defineEventHandler(async (event) => {
     deleteOptions: {
       // 删除后删除角色菜单和用户角色关联
       after: async (data: any) => {
-        await db.delete(systemRoleMenu).where(inArray(systemRoleMenu.roleId, data.id))
-        await db.delete(systemUserRole).where(inArray(systemUserRole.roleId, data.id))
+        await db.delete(systemRoleMenu).where(inArray(systemRoleMenu.roleId, data.ids))
+        await db.delete(systemUserRole).where(inArray(systemUserRole.roleId, data.ids))
       },
     },
     updateOptions: {

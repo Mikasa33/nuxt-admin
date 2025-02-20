@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     deleteOptions: {
       // 删除后删除用户角色关联
       after: async (data) => {
-        await db.delete(systemUserRole).where(inArray(systemUserRole.userId, data.id))
+        await db.delete(systemUserRole).where(inArray(systemUserRole.userId, data.ids))
       },
     },
     updateOptions: {

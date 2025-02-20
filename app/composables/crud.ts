@@ -99,10 +99,6 @@ interface UseCrudOptions {
    */
   key?: string
   /**
-   * 主键
-   */
-  primaryKey?: string
-  /**
    * 列表配置
    */
   listOptions?: ListOptions
@@ -181,7 +177,7 @@ interface UseCrudContextReturn {
   show: Ref<boolean>
   status: Ref<'add' | 'edit' | 'view'>
   title: Ref<string>
-  onSave: () => Promise<void>
+  onSave: UseCrudReturn['onSave']
 }
 
 export function useCrud(options: UseCrudOptions): UseCrudReturn {
@@ -193,7 +189,6 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
     baseUrl,
     apis,
     key = 'default',
-    primaryKey = 'id',
     title = '',
     listOptions: initListOptions,
     onDeleteError,
@@ -274,15 +269,15 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onDeleteSuccess(body)
       }
       else {
-        message.success(`${body[primaryKey].length > 1 ? '批量' : ''}删除成功`)
+        message.success(`${body.ids.length > 1 ? '批量' : ''}删除成功`)
       }
 
       // 如果分页配置存在
       if (listOptions.pagination) {
         const pagination = listOptions.pagination as PaginationProps
         // 如果当前页码乘以每页数量小于等于总数减去删除数量，则设置页码为新的最后一页
-        if (pagination.page! * pagination.pageSize! <= pagination.itemCount! - body[primaryKey].length) {
-          pagination.page = Math.ceil(pagination.itemCount! - body[primaryKey].length / pagination.pageSize!)
+        if (pagination.page! * pagination.pageSize! <= pagination.itemCount! - body.ids.length) {
+          pagination.page = Math.ceil(pagination.itemCount! - body.ids.length / pagination.pageSize!)
         }
       }
 
@@ -353,7 +348,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
     try {
       const data = await $fetch<Record<string, any>>(`${baseUrl}${apis?.info ?? API.INFO}`, {
         params: {
-          [primaryKey]: model[primaryKey],
+          id: model.id,
         },
       })
 
@@ -450,7 +445,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param ids 数据主键数组
    */
   async function onBatchDelete(ids: number[], body?: Record<string, any>) {
-    await executeDelete({ [primaryKey]: ids, ...body })
+    await executeDelete({ ids, ...body })
   }
 
   /**
@@ -459,7 +454,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param model 数据
    */
   async function onDelete(model: Record<string, any>, body?: Record<string, any>) {
-    await executeDelete({ [primaryKey]: [model[primaryKey]], ...body })
+    await executeDelete({ ids: [model.id], ...body })
   }
 
   /**

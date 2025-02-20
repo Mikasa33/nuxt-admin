@@ -17,7 +17,7 @@ export default defineEventHandler(async () => {
         const menus = await db.select().from(systemMenu)
 
         // 查询所有子孙菜单
-        const descendantMenus: number[] = [...data.id]
+        const descendantMenus: number[] = [...data.ids]
         function findChildMenus(ids: number[]) {
           const childMenuIds = menus.filter(menu => menu.parentId && ids.includes(menu.parentId)).map(menu => menu.id)
           if (childMenuIds.length) {
@@ -25,7 +25,7 @@ export default defineEventHandler(async () => {
             findChildMenus(childMenuIds)
           }
         }
-        findChildMenus(data.id)
+        findChildMenus(data.ids)
 
         // 删除所有子孙菜单
         await db.delete(systemMenu).where(inArray(systemMenu.parentId, descendantMenus))

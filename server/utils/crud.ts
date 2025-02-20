@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, getTableColumns, inArray, like, or } from 'd
 import { deleteSchema as baseDeleteSchema } from '../db/schema/base'
 
 interface DeleteBody {
-  id: number[]
+  ids: number[]
   [key: string]: any
 }
 
@@ -144,13 +144,13 @@ export async function crud(options: CrudOptions) {
       const { after, before } = deleteOptions
       const body: DeleteBody = await readValidatedBody(event, deleteSchema.parse)
 
-      if (!body.id?.length) {
+      if (!body.ids?.length) {
         throw createError({ statusCode: 400, message: 'id 不能为空' })
       }
 
       await before?.(body)
 
-      await db.delete(entity).where(inArray(entity.id, body.id))
+      await db.delete(entity).where(inArray(entity.id, body.ids))
 
       await after?.(body)
 

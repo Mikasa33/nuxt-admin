@@ -60,5 +60,5 @@ COMMIT;
 -- Records of system_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `system_user` (`id`, `created_at`, `update_at`, `department_id`, `username`, `password`, `nickname`, `phone`) VALUES (1, '2025-02-17 22:54:32', '2025-02-18 06:16:12', 1, 'admin', '$scrypt$n=16384,r=8,p=1$1Z/iDgZmesI8Q2VcUKNTGg$Pz5kn/LnnhFkmaxvz+o5NMvBnpuIeAJjGyBk87D9gkdg7JG6V1ByennvBiciQDYorkVlddwoMxORBQLyD25UYg', '管理员', NULL);
+INSERT INTO `system_user` (`id`, `created_at`, `update_at`, `department_id`, `username`, `password`, `nickname`, `phone`) VALUES (1, '2025-02-17 22:54:32', '2025-02-18 06:16:12', 1, 'root', '$scrypt$n=16384,r=8,p=1$1Z/iDgZmesI8Q2VcUKNTGg$Pz5kn/LnnhFkmaxvz+o5NMvBnpuIeAJjGyBk87D9gkdg7JG6V1ByennvBiciQDYorkVlddwoMxORBQLyD25UYg', '超级管理员', NULL);
 COMMIT;

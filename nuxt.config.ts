@@ -77,7 +77,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    adminUsername: 'admin',
+    rootUsername: 'root',
     defaultDepartmentId: 1,
     mysql: {
       host: '',

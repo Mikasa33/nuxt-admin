@@ -24,3 +24,5 @@ logs
 !.env.example
 
 public/upload
+
+ecosystem.prod.config.cjs

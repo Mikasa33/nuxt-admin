@@ -14,9 +14,13 @@ export default defineEventHandler(async (event) => {
     if (pathname === '/api/auth/login') {
       body.password = '******'
     }
+
+    if (pathname === '/api/data/file/upload') {
+      body = {}
+    }
   }
 
-  const db = await useDrizzle()
+  const db = await drizzle()
   await db.insert(systemLog).values({
     userId: user?.id,
     nickname: user?.nickname,

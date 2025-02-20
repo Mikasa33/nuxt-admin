@@ -1,1 +1,0 @@
-ALTER TABLE `system_menu` MODIFY COLUMN `slug` varchar(255);

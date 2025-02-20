@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
-
+const { showError } = useErrorMessage()
 const { data, error, execute, status } = useRequest('/api/data/fileCatalog/list')
 const catalogData = computed(() => buildTree(data.value?.filter((item: any) => model.value.id !== item.id) ?? []))
 
@@ -11,7 +11,7 @@ watch(
       await execute()
 
       if (error.value) {
-        useErrorMessage(error)
+        showError(error)
       }
     }
   },

@@ -4,6 +4,7 @@ export function useRequest(url: string, options?: any) {
   const status = ref('idle')
 
   async function fetch(url: string, options: any) {
+    error.value = null
     status.value = 'pending'
 
     try {
@@ -11,6 +12,7 @@ export function useRequest(url: string, options?: any) {
       status.value = 'success'
     }
     catch (err) {
+      data.value = null
       error.value = err
       status.value = 'error'
     }

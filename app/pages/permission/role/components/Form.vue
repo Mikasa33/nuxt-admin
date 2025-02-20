@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
-
+const { showError } = useErrorMessage()
 const { data, error, execute, status } = useRequest('/api/permission/menu/list')
 const menuData = computed(() => buildTree(data.value ?? []))
 
@@ -11,7 +11,7 @@ watch(
       await execute()
 
       if (error.value) {
-        useErrorMessage(error)
+        showError(error)
       }
     }
   },

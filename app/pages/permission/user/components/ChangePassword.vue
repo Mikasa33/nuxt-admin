@@ -5,6 +5,7 @@ const { model: propsModel = {} } = defineProps<{
 
 const show = defineModel<boolean>('show')
 
+const { showError } = useErrorMessage()
 const message = useMessage()
 
 const formRef = ref()
@@ -35,7 +36,7 @@ function onSave() {
     })
 
     if (error.value) {
-      useErrorMessage(error)
+      showError(error)
       return
     }
 

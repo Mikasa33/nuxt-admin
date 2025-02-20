@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const message = useMessage()
+const { showError } = useErrorMessage()
 const { user, fetch } = useUserSession()
 const formRef = ref()
 const model = ref()
@@ -25,7 +26,7 @@ async function onSave() {
     })
 
     if (updateError.value) {
-      useErrorMessage(updateError)
+      showError(updateError)
       return
     }
 

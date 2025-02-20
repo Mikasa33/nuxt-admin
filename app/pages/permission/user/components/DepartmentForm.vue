@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+const { showError } = useErrorMessage()
 const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
-
 const { data, error, execute, status } = useRequest('/api/permission/department/list')
 
 watch(
@@ -10,7 +10,7 @@ watch(
       await execute()
 
       if (error.value) {
-        useErrorMessage(error)
+        showError(error)
       }
     }
   },

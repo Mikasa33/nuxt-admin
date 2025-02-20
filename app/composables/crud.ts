@@ -186,6 +186,7 @@ interface UseCrudContextReturn {
 
 export function useCrud(options: UseCrudOptions): UseCrudReturn {
   const message = useMessage()
+  const { showError } = useErrorMessage()
   const dialog = useCustomDialog()
 
   const {
@@ -292,7 +293,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onDeleteError(error)
       }
       else {
-        useErrorMessage(error)
+        showError(error)
       }
     }
     finally {
@@ -334,7 +335,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onSaveError(error)
       }
       else {
-        useErrorMessage(error)
+        showError(error)
       }
     }
     finally {
@@ -363,7 +364,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchInfoError(error)
       }
       else {
-        useErrorMessage(error)
+        showError(error)
       }
     }
     finally {
@@ -390,7 +391,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        useErrorMessage(error)
+        showError(error)
       }
     }
     finally {
@@ -424,7 +425,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        useErrorMessage(error)
+        showError(error)
       }
     }
     finally {

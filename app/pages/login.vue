@@ -5,6 +5,7 @@ definePageMeta({
 })
 
 const message = useMessage()
+const { showError } = useErrorMessage()
 const notification = useNotification()
 const { user, fetch } = useUserSession()
 const formRef = ref()
@@ -26,11 +27,12 @@ function onLogin() {
     })
 
     if (error.value) {
-      useErrorMessage(error)
+      showError(error)
       return
     }
 
     await fetch()
+
     notification.success({
       title: '登录成功',
       content: `欢迎回来，${user.value!.nickname}！`,

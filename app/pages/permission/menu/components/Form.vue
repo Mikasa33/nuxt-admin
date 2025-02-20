@@ -15,7 +15,7 @@ for (const key in metadata.categories) {
 }
 
 const { formRef, loading, model, saving, show, title, onSave } = useCrudContext()
-
+const { showError } = useErrorMessage()
 const { data, error, execute, status } = useRequest('/api/permission/menu/list', {
   params: {
     type: ['catalog', 'menu'],
@@ -30,7 +30,7 @@ watch(
       await execute()
 
       if (error.value) {
-        useErrorMessage(error)
+        showError(error)
       }
     }
   },

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const message = useMessage()
+const { showError } = useErrorMessage()
 const { user } = useUserSession()
 const formRef = ref()
 const model = ref<any>({})
@@ -19,7 +20,7 @@ async function onSave() {
     })
 
     if (error.value) {
-      useErrorMessage(error)
+      showError(error)
       return
     }
 
@@ -63,7 +64,7 @@ async function onSave() {
       path="newPassword"
       :rule="[
         { required: true, message: '新密码必填' },
-        { validator: (_: any, val: string) => model.oldPassword !== val, message: '新密码不能与旧密码相同', trigger: ['input', 'change'] },
+        { validator: (_: any, val: string) => !!val && model.oldPassword !== val, message: '新密码不能与旧密码相同', trigger: ['input', 'change'] },
       ]"
     >
       <NInput

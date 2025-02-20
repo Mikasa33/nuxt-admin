@@ -36,7 +36,7 @@ const { collapsed } = storeToRefs(useAppStore())
       <NLayout
         :native-scrollbar="false"
         content-class="p-24px h-full"
-        class="rounded-tl-12px bg-#f0f2f5 dark:bg-#101014"
+        class="rounded-tl-12px bg-#f4f4f8ff dark:bg-#101014"
       >
         <NuxtPage />
       </NLayout>

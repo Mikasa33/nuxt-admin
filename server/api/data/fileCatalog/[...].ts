@@ -1,5 +1,4 @@
 import { inArray } from 'drizzle-orm'
-import fs from 'fs-extra'
 import { dataFile } from '~~/server/db/schema/data/file'
 import { dataFileCatalog, insertDataFileCatalogSchema, updateDataFileCatalogSchema } from '~~/server/db/schema/data/fileCatalog'
 
@@ -35,9 +34,9 @@ export default defineEventHandler(async () => {
         // 删除所有子孙文件
         await db.delete(dataFile).where(inArray(dataFile.catalogId, descendantCatalogs))
         // 从磁盘上删除所有子孙文件
-        files.forEach((file) => {
-          fs.removeSync(`public${file.path}`)
-        })
+        for (const file of files) {
+          await useStorage('file').removeItem(file.fileName)
+        }
       },
     },
     listOptions: {

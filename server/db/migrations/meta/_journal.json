@@ -22,6 +22,27 @@
       "when": 1739809036459,
       "tag": "0002_mushy_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1740054213123,
+      "tag": "0003_sparkling_human_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1740055107492,
+      "tag": "0004_lumpy_pixie",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1740055701481,
+      "tag": "0005_hot_lorna_dane",
+      "breakpoints": true
     }
   ]
 }

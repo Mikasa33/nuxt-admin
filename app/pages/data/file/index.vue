@@ -134,18 +134,18 @@ const columns: DataTableColumns = [
     align: 'center',
   },
   {
-    key: 'filename',
+    key: 'name',
     title: '文件名',
     ellipsis: true,
     align: 'center',
   },
   {
-    key: 'size',
+    key: 'fileSize',
     title: '大小',
     align: 'center',
   },
   {
-    key: 'type',
+    key: 'fileMime',
     title: '类型',
     align: 'center',
   },
@@ -263,15 +263,15 @@ function getSize(size: number) {
 
           <template #thumbnail="{ row }">
             <NImage
-              v-if="row.type?.startsWith('image/')"
+              v-if="row.fileMime?.startsWith('image/')"
               lazy
               :src="row.url"
               class="h-40px cursor-pointer"
             />
           </template>
 
-          <template #size="{ row }">
-            {{ getSize(row.size) }}
+          <template #fileSize="{ row }">
+            {{ getSize(row.fileSize) }}
           </template>
 
           <template #createdAt="{ row }">

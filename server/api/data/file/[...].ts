@@ -5,7 +5,7 @@ export default defineEventHandler(async () => {
   const db = await drizzle()
 
   return crud({
-    apis: ['delete', 'page'],
+    apis: ['delete', 'page', 'info'],
     entity: dataFile,
     insertSchema: insertDataFileSchema,
     updateSchema: updateDataFileSchema,
@@ -13,10 +13,10 @@ export default defineEventHandler(async () => {
       // 删除前
       before: async (data) => {
         // 查询文件
-        const files = await db.select().from(dataFile).where(inArray(dataFile.id, data.id))
+        const files = await db.select().from(dataFile).where(inArray(dataFile.id, data.ids))
         // 从磁盘上删除文件
         for (const file of files) {
-          await useStorage('file').removeItem(file.name)
+          await useStorage('file').removeItem(file.fileName)
         }
       },
     },

@@ -1,5 +1,4 @@
-import { Buffer } from 'node:buffer'
-import dayjs from 'dayjs'
+import mime from 'mime'
 import { nanoid } from 'nanoid'
 import { dataFile } from '~~/server/db/schema/data/file'
 
@@ -20,30 +19,41 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: '文件目录不能为空' })
   }
 
-  // 生成文件名
-  const name = `${dayjs().valueOf()}_${nanoid()}.${file.name.split('.').pop()}`
-  // 生成文件路径
-  const path = `/api/data/file/info/${name}`
-  // 生成文件 URL
-  const url = `${getRequestProtocol(event)}://${getRequestHost(event)}${path}`
+  // 文件扩展名
+  const fileExt = file.name.split('.').pop()
+  // 文件 ID
+  const fileId = nanoid()
+  // 文件名
+  const fileName = fileId + (fileExt ? `.${fileExt}` : '')
+  // 文件路径
+  const filePath = `/api/data/file/view/${fileName}`
+  // URL
+  const url = `${getRequestProtocol(event)}://${getRequestHost(event)}${filePath}`
+
+  const storage = useStorage('file')
 
   // 保存文件
-  const buffer = Buffer.from(await file.arrayBuffer())
-  await useStorage('file').setItemRaw(name, buffer)
+
+  await storage.setItemRaw(fileName, file.stream())
+
+  const meta = await storage.getMeta(fileName)
 
   // 插入文件数据
   const [{ insertId }] = await db.insert(dataFile).values({
     catalogId: Number(catalogId),
-    name,
-    size: file.size,
-    type: file.type,
-    filename: file.name,
-    path,
+    name: file.name,
     url,
+    fileId,
+    fileName,
+    filePath,
+    fileSize: meta.size as number,
+    fileMime: mime.getType(fileExt ?? ''),
+    fileExt,
   })
 
   return {
     id: insertId,
+    name: file.name,
     url,
   }
 })

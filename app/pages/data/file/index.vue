@@ -131,25 +131,45 @@ const columns: DataTableColumns = [
   {
     key: 'thumbnail',
     title: '缩略图',
+    align: 'center',
   },
   {
     key: 'filename',
     title: '文件名',
     ellipsis: true,
+    align: 'center',
   },
   {
     key: 'size',
     title: '大小',
+    align: 'center',
   },
   {
     key: 'type',
     title: '类型',
+    align: 'center',
   },
   {
     key: 'createdAt',
     title: '上传时间',
+    align: 'center',
   },
 ]
+
+function getSize(size: number) {
+  if (size > 1024 * 1024 * 1024) {
+    return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
+  }
+  else if (size > 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(2)} MB`
+  }
+  else if (size > 1024) {
+    return `${(size / 1024).toFixed(2)} KB`
+  }
+  else {
+    return `${size} B`
+  }
+}
 </script>
 
 <template>
@@ -243,10 +263,15 @@ const columns: DataTableColumns = [
 
           <template #thumbnail="{ row }">
             <NImage
+              v-if="row.type?.startsWith('image/')"
               lazy
               :src="row.url"
               class="h-40px cursor-pointer"
             />
+          </template>
+
+          <template #size="{ row }">
+            {{ getSize(row.size) }}
           </template>
 
           <template #createdAt="{ row }">

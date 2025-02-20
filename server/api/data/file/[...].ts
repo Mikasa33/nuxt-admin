@@ -1,11 +1,11 @@
 import { inArray } from 'drizzle-orm'
-import fs from 'fs-extra'
 import { dataFile, insertDataFileSchema, updateDataFileSchema } from '~~/server/db/schema/data/file'
 
 export default defineEventHandler(async () => {
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   return crud({
+    apis: ['delete', 'page'],
     entity: dataFile,
     insertSchema: insertDataFileSchema,
     updateSchema: updateDataFileSchema,
@@ -15,16 +15,16 @@ export default defineEventHandler(async () => {
         // 查询文件
         const files = await db.select().from(dataFile).where(inArray(dataFile.id, data.id))
         // 从磁盘上删除文件
-        files.forEach((file) => {
-          fs.removeSync(`public${file.path}`)
-        })
+        for (const file of files) {
+          await useStorage('file').removeItem(file.name)
+        }
       },
     },
     pageOptions: {
-      keywordLike: ['name', 'filename'],
+      keywordLike: ['filename'],
       eq: ['catalogId'],
       orderBy: {
-        id: 'asc',
+        createdAt: 'desc',
       },
     },
   })

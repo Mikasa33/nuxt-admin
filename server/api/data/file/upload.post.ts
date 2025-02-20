@@ -1,14 +1,12 @@
 import { Buffer } from 'node:buffer'
-import { join } from 'node:path'
-import { cwd } from 'node:process'
 import dayjs from 'dayjs'
-import fs from 'fs-extra'
+import { nanoid } from 'nanoid'
 import { dataFile } from '~~/server/db/schema/data/file'
 
 export default defineEventHandler(async (event) => {
   await verifyPermission('data:file:upload')
 
-  const db = await useDrizzle()
+  const db = await drizzle()
 
   const formData = await readFormData(event)
 
@@ -23,11 +21,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // 生成文件名
-  const name = `${dayjs().valueOf()}_${file.name}`
-  // 生成文件保存路径
-  const path = `/upload/${name}`
+  const name = `${dayjs().valueOf()}_${nanoid()}.${file.name.split('.').pop()}`
+  // 生成文件路径
+  const path = `/api/data/file/info/${name}`
   // 生成文件 URL
   const url = `${getRequestProtocol(event)}://${getRequestHost(event)}${path}`
+
+  // 保存文件
+  const buffer = Buffer.from(await file.arrayBuffer())
+  await useStorage('file').setItemRaw(name, buffer)
 
   // 插入文件数据
   const [{ insertId }] = await db.insert(dataFile).values({
@@ -39,12 +41,6 @@ export default defineEventHandler(async (event) => {
     path,
     url,
   })
-
-  // 保存文件到磁盘，使用绝对路径
-  const uploadDir = import.meta.dev ? 'public' : '.output/public'
-  const fullPath = join(cwd(), uploadDir, path)
-  const buffer = Buffer.from(await file.arrayBuffer())
-  fs.outputFileSync(fullPath, buffer)
 
   return {
     id: insertId,

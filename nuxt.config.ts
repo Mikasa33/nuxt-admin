@@ -69,6 +69,12 @@ export default defineNuxtConfig({
       // 每月 1 日 0 点清空系统日志
       '0 0 1 * *': ['system:log:clear'],
     },
+    storage: {
+      file: {
+        driver: 'fs-lite',
+        base: './storage/file',
+      },
+    },
   },
   runtimeConfig: {
     adminUsername: 'admin',

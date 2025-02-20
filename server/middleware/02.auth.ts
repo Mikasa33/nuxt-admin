@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
       return
     }
 
-    const session = await getUserSession(event)
-    if (!session.user) {
+    const { user } = await getUserSession(event)
+    if (!user) {
       await sendRedirect(event, '/login', 302)
     }
   }

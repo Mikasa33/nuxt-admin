@@ -6,13 +6,13 @@ import { systemUser } from '~~/server/db/schema/system/user'
 import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
 // 获取用户菜单和权限列表
-export async function getUserMenuList(options: { userId: number, includePermission?: boolean }) {
-  const { userId, includePermission = false } = options
+export async function getUserMenuList(options: { userId: number, username: string, includePermission?: boolean }) {
+  const { userId, username, includePermission = false } = options
 
   const db = await useDrizzle()
 
   // 超级管理员，获取所有菜单和权限列表
-  if (await isAdmin()) {
+  if (isAdmin(username)) {
     return db
       .select(getTableColumns(systemMenu))
       .from(systemMenu)
@@ -51,5 +51,8 @@ export function getPermissions(menuList: SelectSystemMenu[]) {
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
 
-  return getUserMenuList({ userId: session.user!.id })
+  return getUserMenuList({
+    userId: session.user!.id,
+    username: session.user!.username,
+  })
 })

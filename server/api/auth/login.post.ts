@@ -40,16 +40,10 @@ export async function updateUserSession(user: any) {
 
   const userInfo = { ...pick(user, ['id', 'username', 'nickname']) }
 
-  // 更新用户信息和登录时间（因为获取用户菜单和权限列表需要判断是否为 admin 用户，所以先更新一次用户信息）
-  await replaceUserSession(event, {
-    user: userInfo,
-    secure: {},
-    loggedInAt: new Date(),
-  })
-
   // 获取用户菜单和权限列表
   const menuList = await getUserMenuList({
     userId: user.id,
+    username: user.username,
     includePermission: true,
   })
 
@@ -60,5 +54,7 @@ export async function updateUserSession(user: any) {
       routers: getRouters(menuList),
       permissions: getPermissions(menuList),
     },
+    secure: {},
+    loggedInAt: new Date(),
   })
 }

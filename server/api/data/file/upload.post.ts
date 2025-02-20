@@ -1,4 +1,6 @@
 import { Buffer } from 'node:buffer'
+import { join } from 'node:path'
+import { cwd } from 'node:process'
 import dayjs from 'dayjs'
 import fs from 'fs-extra'
 import { dataFile } from '~~/server/db/schema/data/file'
@@ -38,9 +40,11 @@ export default defineEventHandler(async (event) => {
     url,
   })
 
-  // 保存文件到磁盘
+  // 保存文件到磁盘，使用绝对路径
+  const uploadDir = import.meta.dev ? 'public' : '.output/public'
+  const fullPath = join(cwd(), uploadDir, path)
   const buffer = Buffer.from(await file.arrayBuffer())
-  fs.outputFileSync(`public${path}`, buffer)
+  fs.outputFileSync(fullPath, buffer)
 
   return {
     id: insertId,

@@ -26,3 +26,6 @@ ecosystem.prod.config.cjs
 
 # Storage
 storage
+
+# Database
+server/db/migrations

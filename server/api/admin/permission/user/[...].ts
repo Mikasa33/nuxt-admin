@@ -6,7 +6,7 @@ import { systemUserRole } from '~~/server/db/schema/system/userRole'
 export default defineEventHandler(async (event) => {
   const { departmentId } = getQuery(event)
   const db = await drizzle()
-  const { adminUsername } = useRuntimeConfig(event)
+  const { rootUsername } = useRuntimeConfig(event)
 
   // 新增或更新后，更新用户角色关联
   async function addOrUpdateAfter(data: { id: number }, type: 'add' | 'update') {
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
       inArray: ['type'],
       // 排除超级管理员
       where: [
-        not(eq(systemUser.username, adminUsername)),
+        not(eq(systemUser.username, rootUsername)),
       ],
       orderBy: {
         orderBy: 'asc',
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
       keywordLike: ['username', 'nickname', 'phone'],
       // 排除超级管理员
       where: [
-        not(eq(systemUser.username, adminUsername)),
+        not(eq(systemUser.username, rootUsername)),
         eq(systemUser.departmentId, Number(departmentId)),
       ],
       orderBy: {

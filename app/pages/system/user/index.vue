@@ -156,7 +156,7 @@ function onChangePassword(row: any) {
 </script>
 
 <template>
-  <BaseSplitCard c-key="system-user">
+  <BaseSplit c-key="system-user">
     <template #left>
       <BaseCard :title="departmentTitle">
         <template #suffix>
@@ -277,5 +277,5 @@ function onChangePassword(row: any) {
         :model="changePasswordModel"
       />
     </template>
-  </BaseSplitCard>
+  </BaseSplit>
 </template>

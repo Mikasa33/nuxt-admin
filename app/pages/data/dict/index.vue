@@ -129,7 +129,7 @@ const columns: DataTableColumns = [
 </script>
 
 <template>
-  <BaseSplitCard c-key="data-dict">
+  <BaseSplit c-key="data-dict">
     <template #left>
       <BaseCard :title="typeTitle">
         <template #suffix>
@@ -238,5 +238,5 @@ const columns: DataTableColumns = [
       <Form />
       <DictForm />
     </template>
-  </BaseSplitCard>
+  </BaseSplit>
 </template>

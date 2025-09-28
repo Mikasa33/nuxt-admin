@@ -183,7 +183,7 @@ function getSize(size: number) {
 </script>
 
 <template>
-  <BaseSplitCard c-key="data-file">
+  <BaseSplit c-key="data-file">
     <template #left>
       <BaseCard :title="catalogTitle">
         <template #suffix>
@@ -309,5 +309,5 @@ function getSize(size: number) {
 
       <Form />
     </template>
-  </BaseSplitCard>
+  </BaseSplit>
 </template>

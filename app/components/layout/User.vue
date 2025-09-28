@@ -1,16 +1,44 @@
 <script lang="tsx" setup>
 import type { DropdownOption } from 'naive-ui'
 import { NuxtLink } from '#components'
+import { NAvatar, NEl, NText } from 'naive-ui'
 
 const dialog = useCustomDialog()
 const message = useMessage()
 const { loggedIn, user, clear } = useUserSession()
 
+function renderUser() {
+  return (
+    <NEl class="flex-y-center gap-x-12px px-12px py-8px">
+      <NAvatar
+        round
+        size={36}
+        src={user.value?.avatar}
+        class="bg-[var(--primary-color)]"
+      >
+        {!user.value?.avatar ? (user.value?.nickname ?? user.value?.username)?.slice(0, 1) : null}
+      </NAvatar>
+      <div class="flex flex-col">
+        <NText depth={2}>{ user.value?.nickname}</NText>
+        <NText depth={3}>{ user.value?.username}</NText>
+      </div>
+    </NEl>
+  )
+}
+
 const options = [
+  {
+    type: 'render',
+    render: renderUser,
+    key: 'user',
+  },
+  {
+    type: 'divider',
+  },
   {
     icon: renderIcon('i-icon-park-outline-user'),
     label: '个人中心',
-    key: '/admin/person',
+    key: '/person',
   },
   {
     type: 'divider',
@@ -43,7 +71,7 @@ function onSelect(key: string) {
           d.loading = true
           if (!loggedIn.value) {
             message.success('退出登录成功')
-            navigateTo('/admin/login')
+            await navigateTo('/login')
           }
         },
       })
@@ -56,6 +84,7 @@ function onSelect(key: string) {
   <NDropdown
     :options
     :render-label
+    class="min-w-200px max-w-240px"
     @select="onSelect"
   >
     <NButton

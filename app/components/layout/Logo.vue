@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-const { admin: { title, logo } } = useAppConfig()
+const { title, logo } = useAppConfig()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 
 <template>
   <NuxtLink
-    to="/admin"
+    to="/"
     :class="collapsed ? 'w-64px' : 'w-240px'"
     class="h-full flex-center gap-x-8px transition-300"
   >
@@ -16,7 +16,7 @@ const { collapsed } = storeToRefs(useAppStore())
     />
     <NH2
       v-show="!collapsed"
-      class="m-0"
+      class="m-0 truncate"
     >
       {{ title }}
     </NH2>

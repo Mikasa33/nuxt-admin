@@ -7,19 +7,16 @@ export default defineEventHandler(async (event) => {
       return
     }
 
-    // 管理员相关接口
-    if (pathname.startsWith('/api/admin')) {
-      // 管理员登录接口不进行权限验证
-      if (pathname.startsWith('/api/admin/auth')) {
-        return
-      }
+    // 管理员登录接口不进行权限验证
+    if (pathname.startsWith('/api/auth')) {
+      return
+    }
 
-      const { user } = await getUserSession(event)
+    const { user } = await getUserSession(event)
 
-      // 未登录，跳转到登录页面
-      if (!user) {
-        await sendRedirect(event, '/admin/login', 302)
-      }
+    // 未登录，跳转到登录页面
+    if (!user) {
+      throw createError({ statusCode: 401, message: '未登录' })
     }
   }
 })

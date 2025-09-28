@@ -8,12 +8,7 @@ export const dataDict = d.mysqlTable('data_dict', {
   /**
    * 类型 ID
    */
-  typeId: d.int('type_id'),
-
-  /**
-   * 父级 ID
-   */
-  parentId: d.int('parent_id'),
+  typeId: d.int('type_id').notNull(),
 
   /**
    * 标识，必填
@@ -28,7 +23,7 @@ export const dataDict = d.mysqlTable('data_dict', {
   /**
    * 排序，默认值 0
    */
-  orderBy: d.int('order_by').default(0),
+  orderNum: d.int('order_num').default(0),
 })
 
 export type SelectDataDict = typeof dataDict.$inferSelect

@@ -14,7 +14,7 @@ export async function drizzle() {
   const event = useEvent()
   const config = useRuntimeConfig(event)
 
-  const connection = await mysql.createPool(config.mysql)
+  const connection = mysql.createPool(config.mysql)
 
   db = dz({
     casing: 'snake_case',

@@ -33,8 +33,8 @@ function convertToTree(data: any[]) {
 }
 
 const route = useRoute()
-const { data: menuData } = await useFetch('/api/admin/person/menu')
-const options = computed(() => convertToTree(menuData.value as any[]))
+const { menuList } = storeToRefs(usePermissionStore())
+const options = computed(() => convertToTree(menuList.value as any[]))
 
 const active = ref('')
 watch(

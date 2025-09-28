@@ -1,20 +1,16 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const { isAdmin } = useApp()
+import { isUndefined } from 'lodash-es'
 
-  if (!isAdmin.value) {
-    return
-  }
-
+export default defineNuxtRouteMiddleware(async (to) => {
   const { loggedIn } = useUserSession()
 
   if (loggedIn.value) {
-    if (to.path === '/admin/login') {
-      return navigateTo('/admin', { redirectCode: 301 })
+    if (to.path === '/login') {
+      return await navigateTo('/', { redirectCode: 301 })
     }
   }
   else {
     if (to.meta.auth || isUndefined(to.meta.auth)) {
-      return navigateTo('/admin/login', { redirectCode: 301 })
+      return await navigateTo('/login', { redirectCode: 301 })
     }
   }
 })

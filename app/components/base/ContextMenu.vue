@@ -2,7 +2,7 @@
 import type { DropdownOption } from 'naive-ui'
 
 const { options = [] } = defineProps<{
-  options: DropdownOption[]
+  options?: DropdownOption[]
   x: number
   y: number
 }>()
@@ -14,11 +14,11 @@ const emits = defineEmits<{
 
 const show = defineModel<boolean>('show')
 
-function handleSelect(key: string | number, option: DropdownOption) {
+function onSelect(key: string | number, option: DropdownOption) {
   emits('select', key, option)
 }
 
-function handleClickoutside(e: MouseEvent) {
+function onClickoutside(e: MouseEvent) {
   show.value = false
   emits('clickoutside', e)
 }
@@ -33,7 +33,7 @@ function handleClickoutside(e: MouseEvent) {
     :x
     :y
     class="min-w-100px"
-    @select="handleSelect"
-    @clickoutside="handleClickoutside"
+    @select="onSelect"
+    @clickoutside="onClickoutside"
   />
 </template>

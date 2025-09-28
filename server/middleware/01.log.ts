@@ -12,12 +12,17 @@ export default defineEventHandler(async (event) => {
     body = cloneDeep(await readBody(event))
 
     // 管理员登录接口不记录明文密码
-    if (pathname === '/api/admin/auth/login') {
+    if (pathname === '/api/auth/login') {
       body.password = '******'
     }
 
     // 管理员文件上传接口不记录文件内容
-    if (pathname === '/api/admin/data/file/upload') {
+    if (pathname === '/api/data/file/upload') {
+      body = {}
+    }
+
+    // 管理员文件预览接口不记录文件内容
+    if (pathname === '/api/data/file/view') {
       body = {}
     }
   }

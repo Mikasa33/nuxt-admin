@@ -15,9 +15,9 @@ export const baseSchema = {
   /**
    * 更新时间，时间戳
    */
-  updatedAt: d.timestamp('update_at', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: d.timestamp('updated_at', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
 }
 
 export const deleteSchema = z.object({
   ids: z.array(z.number()),
-}).passthrough()
+})

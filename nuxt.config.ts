@@ -1,4 +1,9 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config/
+import process from 'node:process'
+import AutoImport from 'unplugin-auto-import/vite'
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+
+// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   app: {
     pageTransition: {
@@ -6,10 +11,10 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2025-07-15',
   css: [
     '@unocss/reset/tailwind-compat.css',
-    '@/assets/style/index.css',
+    '~/assets/style/index.css',
   ],
   // https://color-mode.nuxtjs.org/
   colorMode: {
@@ -25,12 +30,9 @@ export default defineNuxtConfig({
       standalone: false,
     },
   },
-  future: {
-    compatibilityVersion: 4,
-  },
   // https://github.com/nuxt/icon/
   icon: {
-    serverBundle: 'remote',
+    serverBundle: 'local',
   },
   modules: [
     '@nuxt/devtools',
@@ -39,9 +41,8 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@unocss/nuxt',
     '@vueuse/nuxt',
-    'dayjs-nuxt',
     'nuxt-auth-utils',
-    'nuxt-lodash',
+    'nuxtjs-naive-ui',
     [
       '@pinia/nuxt',
       {
@@ -72,7 +73,14 @@ export default defineNuxtConfig({
     storage: {
       file: {
         driver: 'fs-lite',
-        base: './storage/file',
+        base: './.storage/file',
+      },
+      redis: {
+        driver: 'redis',
+        host: 'localhost',
+        username: null,
+        password: null,
+        port: 6379,
       },
     },
   },
@@ -86,6 +94,32 @@ export default defineNuxtConfig({
       password: '',
       database: '',
     },
+    session: {
+      maxAge: 60 * 60 * 2, // 2h
+      password: String(process.env.NUXT_SESSION_PASSWORD),
+    },
   },
   ssr: false,
+  vite: {
+    plugins: [
+      AutoImport({
+        imports: [
+          {
+            'naive-ui': [
+              'useDialog',
+              'useDialogReactiveList',
+              'useLoadingBar',
+              'useMessage',
+              'useModal',
+              'useNotification',
+              'useThemeVars',
+            ],
+          },
+        ],
+      }),
+      Components({
+        resolvers: [NaiveUiResolver()],
+      }),
+    ],
+  },
 })

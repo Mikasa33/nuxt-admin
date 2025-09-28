@@ -25,7 +25,11 @@ logs
 ecosystem.prod.config.cjs
 
 # Storage
-storage
+.storage
 
 # Database
 server/db/migrations/*
+
+# Types
+app/auto-imports.d.ts
+app/components.d.ts

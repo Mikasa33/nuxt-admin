@@ -23,7 +23,7 @@ export const dataDictType = d.mysqlTable('data_dict_type', {
   /**
    * 排序，默认值 0
    */
-  orderBy: d.int('order_by').default(0),
+  orderNum: d.int('order_num').default(0),
 })
 
 export type SelectDataDictType = typeof dataDictType.$inferSelect

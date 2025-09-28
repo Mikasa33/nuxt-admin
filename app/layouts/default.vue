@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-const { admin: { layout } } = useAppConfig()
 const { collapsed } = storeToRefs(useAppStore())
 </script>
 
@@ -10,7 +9,6 @@ const { collapsed } = storeToRefs(useAppStore())
         <LayoutLogo />
         <div class="flex-1" />
         <div class="mr-24px h-full flex-y-center gap-x-8px">
-          <LayoutGithub v-if="layout.header.github" />
           <LayoutTheme />
           <LayoutUser />
         </div>

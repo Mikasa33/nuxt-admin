@@ -9,7 +9,7 @@ export const useAppStore = defineStore(
   },
   {
     persist: {
-      key: 'nuxt-admin-app-state',
+      key: 'nuxt-admin:app-store',
       storage: piniaPluginPersistedstate.localStorage(),
     },
   },

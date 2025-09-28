@@ -46,11 +46,11 @@ function nodeProps({ option }: { option: TreeOption }) {
     },
   }
 }
-function handleSelect(key: string | number) {
+function onSelect(key: string | number) {
   show.value = false
   emits('dropdownSelect', key, node.value)
 }
-function handleClickoutside(e: MouseEvent) {
+function onClickoutside(e: MouseEvent) {
   const target = e.target as HTMLElement
   if (target.closest('.n-tree-node')) {
     show.value = true
@@ -75,7 +75,6 @@ function handleClickoutside(e: MouseEvent) {
       block-line
       :data
       :default-expand-all
-      expand-on-click
       key-field="id"
       label-field="name"
       :node-props
@@ -97,7 +96,7 @@ function handleClickoutside(e: MouseEvent) {
     :options
     :x
     :y
-    @select="handleSelect"
-    @clickoutside="handleClickoutside"
+    @select="onSelect"
+    @clickoutside="onClickoutside"
   />
 </template>

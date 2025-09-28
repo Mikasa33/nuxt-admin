@@ -1,28 +1,27 @@
 export const usePermissionStore = defineStore(
   'permission',
   () => {
-    const ready = ref(false)
-    const routes = ref<string[]>([])
-    const permissions = ref<string[]>([])
+    const routeList = ref<string[]>([])
+    const permissionList = ref<string[]>([])
+    const menuList = ref<any[]>([])
 
     async function fetch() {
-      const data = await $fetch('/api/admin/person/permission')
-      ready.value = true
-      routes.value = data.routes ?? []
-      permissions.value = data.permissions ?? []
+      const { data } = await useCustomFetch('/api/person/permission')
+      routeList.value = data.value?.routeList ?? []
+      permissionList.value = data.value?.permissionList ?? []
+      menuList.value = data.value?.menuList ?? []
     }
 
     return {
-      ready,
-      routes,
-      permissions,
+      routeList,
+      permissionList,
+      menuList,
       fetch,
     }
   },
   {
     persist: {
-      key: 'nuxt-admin-permission-state',
-      omit: ['ready'],
+      key: 'nuxt-admin:permission-store',
       storage: piniaPluginPersistedstate.localStorage(),
     },
   },

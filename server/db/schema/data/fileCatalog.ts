@@ -18,7 +18,7 @@ export const dataFileCatalog = d.mysqlTable('data_file_catalog', {
   /**
    * 排序，默认值 0
    */
-  orderBy: d.int('order_by').default(0),
+  orderNum: d.int('order_num').default(0),
 })
 
 export type SelectDataFileCatalog = typeof dataFileCatalog.$inferSelect

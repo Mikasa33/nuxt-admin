@@ -17,19 +17,16 @@ function onEnter() {
 </script>
 
 <template>
-  <NInput
-    v-model:value="value"
-    placeholder="请输入关键词"
-    clearable
-    class="max-w-180px"
-    @clear="onClear"
-    @keydown.enter="onEnter"
-  >
-    <template #prefix>
-      <Icon
-        name="i-icon-park-outline-search"
-        class="mr-4px"
-      />
-    </template>
-  </NInput>
+  <NInputGroup class="max-w-240px">
+    <NInput
+      v-model:value="value"
+      placeholder="请输入关键词"
+      clearable
+      @clear="onClear"
+      @keydown.enter="onEnter"
+    />
+    <NButton @click="onEnter">
+      搜索
+    </NButton>
+  </NInputGroup>
 </template>

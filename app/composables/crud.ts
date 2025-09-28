@@ -1,4 +1,5 @@
 import type { DialogOptions, DialogReactive, PaginationProps } from 'naive-ui'
+import { cloneDeep } from 'lodash-es'
 
 enum API {
   ADD = '/add',
@@ -182,7 +183,6 @@ interface UseCrudContextReturn {
 
 export function useCrud(options: UseCrudOptions): UseCrudReturn {
   const message = useMessage()
-  const { error: showError } = useCustomMessage()
   const dialog = useCustomDialog()
 
   const {
@@ -222,13 +222,13 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
           showSizePicker: true,
           size: 'large',
           ...unref(initListOptions?.pagination),
-          onUpdatePage: (page: number) => {
+          onUpdatePage: async (page: number) => {
             (listOptions.pagination as PaginationProps)!.page = page
-            onLoad()
+            await onLoad()
           },
-          onUpdatePageSize: (pageSize: number) => {
+          onUpdatePageSize: async (pageSize: number) => {
             (listOptions.pagination as PaginationProps)!.pageSize = pageSize
-            onLoad()
+            await onLoad()
           },
         },
   })
@@ -260,15 +260,12 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
   async function executeDelete(body: Record<string, any>) {
     listOptions.deleting = true
     try {
-      await $fetch(`${baseUrl}${apis?.delete ?? API.DELETE}`, {
-        method: 'delete',
+      await $customFetch(`${baseUrl}${apis?.delete ?? API.DELETE}`, {
+        method: 'DELETE',
         body,
       })
 
-      if (onDeleteSuccess) {
-        await onDeleteSuccess(body)
-      }
-      else {
+      if (!onDeleteSuccess) {
         message.success(`${body.ids.length > 1 ? '批量' : ''}删除成功`)
       }
 
@@ -281,14 +278,18 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         }
       }
 
-      onLoad()
+      await onLoad()
+
+      if (onDeleteSuccess) {
+        await onDeleteSuccess(body)
+      }
     }
     catch (error: any) {
       if (onDeleteError) {
         await onDeleteError(error)
       }
       else {
-        showError(error)
+        message.error(error.message)
       }
     }
     finally {
@@ -302,15 +303,15 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    * @param body 请求体
    */
   async function executeSave(body: Record<string, any>) {
-    let cloneBody = useCloneDeep(body)
+    let cloneBody = cloneDeep(body)
     if (onBeforeSave) {
       cloneBody = await onBeforeSave(cloneBody) ?? cloneBody
     }
 
     formOptions.saving = true
     try {
-      const data = await $fetch<Record<string, any>>(`${baseUrl}${formOptions.status === 'edit' ? apis?.update ?? API.UPDATE : apis?.add ?? API.ADD}`, {
-        method: formOptions.status === 'edit' ? 'put' : 'post',
+      const data = await $customFetch<Record<string, any>>(`${baseUrl}${formOptions.status === 'edit' ? apis?.update ?? API.UPDATE : apis?.add ?? API.ADD}`, {
+        method: formOptions.status === 'edit' ? 'PUT' : 'POST',
         body: cloneBody,
       })
 
@@ -323,14 +324,14 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
 
       formOptions.show = false
 
-      onLoad()
+      await onLoad()
     }
     catch (error: any) {
       if (onSaveError) {
         await onSaveError(error)
       }
       else {
-        showError(error)
+        message.error(error.message)
       }
     }
     finally {
@@ -345,8 +346,9 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    */
   async function fetchInfo(model: Record<string, any>) {
     formOptions.loading = true
+    formOptions.model = {}
     try {
-      const data = await $fetch<Record<string, any>>(`${baseUrl}${apis?.info ?? API.INFO}`, {
+      const data = await $customFetch<Record<string, any>>(`${baseUrl}${apis?.info ?? API.INFO}`, {
         params: {
           id: model.id,
         },
@@ -359,7 +361,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchInfoError(error)
       }
       else {
-        showError(error)
+        message.error(error.message)
       }
     }
     finally {
@@ -378,7 +380,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         params.keyword = unref(listOptions.searchKeyword)
       }
 
-      const data = await $fetch<Record<string, any>[]>(`${baseUrl}${apis?.list ?? API.LIST}`, { params })
+      const data = await $customFetch<Record<string, any>[]>(`${baseUrl}${apis?.list ?? API.LIST}`, { params })
       listOptions.data = (await onFetchListSuccess?.(data)) ?? data
     }
     catch (error: any) {
@@ -386,7 +388,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        showError(error)
+        message.error(error.message)
       }
     }
     finally {
@@ -410,7 +412,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         params.keyword = unref(listOptions.searchKeyword)
       }
 
-      const data = await $fetch<ListData>(`${baseUrl}${apis?.page ?? API.PAGE}`, { params })
+      const data = await $customFetch<ListData>(`${baseUrl}${apis?.page ?? API.PAGE}`, { params })
 
       listOptions.data = (await onFetchListSuccess?.(data)) ?? data.list;
       (listOptions.pagination as PaginationProps).itemCount = data.total
@@ -420,7 +422,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         await onFetchListError(error)
       }
       else {
-        showError(error)
+        message.error(error.message)
       }
     }
     finally {
@@ -522,8 +524,8 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
     })
   }
 
-  onMounted(() => {
-    listOptions.immediate && onLoad()
+  onMounted(async () => {
+    listOptions.immediate && (await onLoad())
   })
 
   provide(`use-crud-${key}-form-ref`, formRef)

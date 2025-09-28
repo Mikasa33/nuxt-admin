@@ -1,20 +1,33 @@
 <script lang="ts" setup>
-const { defaultSize = '280px', max = 0.5, min = '220px', resizeTriggerSize = 24 } = defineProps<{
+import { useStorage } from '@vueuse/core'
+
+const { cKey = 'default', defaultSize = '280px', max = 0.5, min = '220px', resizeTriggerSize = 24 } = defineProps<{
+  cKey?: string
   defaultSize?: string
   max?: number | string
   min?: number | string
   resizeTriggerSize?: number
 }>()
+
+const { name } = useAppConfig()
+
+const storage = useStorage<any>(`${name}:split-card`, {})
+
+function onUpdateSize(value: string) {
+  storage.value[cKey] = value
+}
 </script>
 
 <template>
   <NSplit
+    v-model:size="storage[cKey]"
     :default-size
     direction="horizontal"
     :max
     :min
     :resize-trigger-size
     class="h-full flex overflow-hidden rounded-16px transition-300"
+    @update:size="onUpdateSize"
   >
     <template #1>
       <slot name="left" />

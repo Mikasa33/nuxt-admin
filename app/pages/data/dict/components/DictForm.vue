@@ -77,6 +77,7 @@ watch(
       >
         <NInputNumber
           v-model:value="model.orderNum"
+          :default-value="0"
           placeholder="请输入字典排序"
           clearable
           class="!w-full"

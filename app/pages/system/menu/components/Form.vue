@@ -159,6 +159,7 @@ function renderLabel(option: SelectOption) {
       >
         <NInputNumber
           v-model:value="model.orderNum"
+          :default-value="0"
           :placeholder="`请输入${label}排序`"
           clearable
           class="!w-full"

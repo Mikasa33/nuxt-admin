@@ -62,6 +62,7 @@ watch(
       >
         <NInputNumber
           v-model:value="model.orderNum"
+          :default-value="0"
           placeholder="请输入部门排序"
           clearable
           class="!w-full"

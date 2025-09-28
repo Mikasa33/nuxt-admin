@@ -1,5 +1,5 @@
 import { inArray } from 'drizzle-orm'
-import { systemUserRole } from '~~/server/db/schema'
+import { systemUserRole } from '~~/server/db/schema/system/userRole'
 import { insertSystemDepartmentSchema, systemDepartment, updateSystemDepartmentSchema } from '~~/server/db/schema/system/department'
 import { systemUser } from '~~/server/db/schema/system/user'
 

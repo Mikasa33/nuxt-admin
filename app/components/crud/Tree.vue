@@ -16,7 +16,7 @@ const emits = defineEmits<{
   'update:expanded-keys': [keys: Array<string | number>, option: Array<TreeOption | null>, meta: any]
 }>()
 
-const selectedKeys = defineModel<Array<number | string>>('selected-keys')
+const selectedKeys = defineModel<Array<number | string>>('selected-keys', { default: () => []})
 function onUpdateSelectedKeys(keys: Array<number | string>) {
   selectedKeys.value = keys
 }

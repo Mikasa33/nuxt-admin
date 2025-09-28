@@ -25,7 +25,7 @@ const {
   data?: DataTableProps['data']
   loading?: boolean
   operation?: boolean
-  operationProps?: TableBaseColumn
+  operationProps?: Omit<TableBaseColumn, 'key'>
   pagination?: DataTableProps['pagination']
   remote?: DataTableProps['remote']
   rowKey?: DataTableProps['rowKey']

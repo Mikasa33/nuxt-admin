@@ -95,6 +95,7 @@ export default defineNuxtConfig({
       database: '',
     },
     session: {
+      name: 'nuxt-admin-session',
       maxAge: 60 * 60 * 2, // 2h
       password: String(process.env.NUXT_SESSION_PASSWORD),
     },

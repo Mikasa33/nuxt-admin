@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { VNodeChild } from 'vue'
+import type { VNode } from 'vue'
 import { isNumber } from 'lodash-es'
 
 const { closable = true, width = 800 } = defineProps<{
@@ -16,7 +16,7 @@ const emits = defineEmits<{
 }>()
 
 defineSlots<{
-  default: () => VNodeChild
+  default: () => VNode
 }>()
 
 const show = defineModel<boolean>('show')

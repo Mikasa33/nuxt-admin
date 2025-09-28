@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import type { VNodeChild } from 'vue'
+import type { VNode } from 'vue'
 
 defineProps<{
   title: string | number
 }>()
 
 defineSlots<{
-  default: () => VNodeChild
-  suffix: () => VNodeChild
+  default: () => VNode
+  suffix: () => VNode
 }>()
 </script>
 

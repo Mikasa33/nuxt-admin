@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import type { TabPaneProps } from 'naive-ui'
-import type { VNodeChild } from 'vue'
+import type { VNode } from 'vue'
 
 defineProps<{
   data?: TabPaneProps[]
 }>()
 
 defineSlots<{
-  [key: string]: () => VNodeChild
-  suffix: () => VNodeChild
+  [key: string]: () => VNode
+  suffix: () => VNode
 }>()
 </script>
 

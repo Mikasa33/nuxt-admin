@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { VNodeChild } from 'vue'
+import type { VNode } from 'vue'
 
 const { closable = true, width = 500 } = defineProps<{
   closable?: boolean
@@ -15,7 +15,7 @@ const emits = defineEmits<{
 }>()
 
 defineSlots<{
-  default: () => VNodeChild
+  default: () => VNode
 }>()
 
 const show = defineModel<boolean>('show')

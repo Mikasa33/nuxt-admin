@@ -1,7 +1,7 @@
 <script lang="tsx" setup>
 import type { DataTableProps } from 'naive-ui'
 import type { TableBaseColumn } from 'naive-ui/es/data-table/src/interface'
-import type { VNodeChild } from 'vue'
+import type { VNode } from 'vue'
 import { cloneDeep } from 'lodash-es'
 
 const {
@@ -39,8 +39,8 @@ const {
 // }>()
 
 const slots = defineSlots<{
-  header: () => VNodeChild
-  [key: string]: ({ row, index }: { row: any, index: number }) => VNodeChild
+  header: () => VNode
+  [key: string]: ({ row, index }: { row: any, index: number }) => VNode
 }>()
 
 const checkedRowKeys = defineModel<Array<string | number>>('checked-row-keys', {

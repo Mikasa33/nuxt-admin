@@ -167,7 +167,7 @@ interface UseCrudReturn {
   onEdit: (model: Record<string, any>) => Promise<void>
   onLoad: () => Promise<void>
   onReload: () => Promise<void>
-  onSave: () => Promise<void>
+  onSave: (close?: boolean) => Promise<void>
 }
 
 interface UseCrudContextReturn {
@@ -302,7 +302,7 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
    *
    * @param body 请求体
    */
-  async function executeSave(body: Record<string, any>) {
+  async function executeSave(body: Record<string, any>, close = true) {
     let cloneBody = cloneDeep(body)
     if (onBeforeSave) {
       cloneBody = await onBeforeSave(cloneBody) ?? cloneBody
@@ -322,7 +322,9 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
         message.success('保存成功')
       }
 
-      formOptions.show = false
+      if (close) {
+        formOptions.show = false
+      }
 
       await onLoad()
     }
@@ -513,14 +515,14 @@ export function useCrud(options: UseCrudOptions): UseCrudReturn {
   /**
    * 保存数据
    */
-  async function onSave() {
+  async function onSave(close = true) {
     formRef.value.validate(async (errors: any) => {
       if (errors) {
         message.error('表单填写有误')
         return
       }
 
-      await executeSave(formOptions.model)
+      await executeSave(formOptions.model, close)
     })
   }
 

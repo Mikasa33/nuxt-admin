@@ -5,7 +5,7 @@ const formRef = useTemplateRef('form')
 const model = ref<any>({})
 
 const { error, execute, status } = await useCustomFetch('/api/person/changePassword', {
-  method: 'post',
+  method: 'POST',
   body: model,
   immediate: false,
   watch: false,

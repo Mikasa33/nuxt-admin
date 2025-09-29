@@ -11,7 +11,7 @@ const formRef = ref()
 const model = ref<any>({})
 
 const { error, execute, pending } = await useCustomFetch('/api/system/user/changePassword', {
-  method: 'post',
+  method: 'POST',
   body: model,
   immediate: false,
   watch: false,
@@ -50,7 +50,7 @@ function onSave() {
     v-model:show="show"
     :confirm-loading="pending"
     title="修改密码"
-    @confirm="onSave"
+    @confirm="onSave()"
   >
     <NForm
       ref="formRef"

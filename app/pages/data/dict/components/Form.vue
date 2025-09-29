@@ -8,7 +8,7 @@ const { formRef, loading, model, saving, show, title, onSave } = useCrudContext(
     :confirm-loading="saving"
     :loading
     :title
-    @confirm="onSave"
+    @confirm="onSave()"
   >
     <NForm
       ref="formRef"

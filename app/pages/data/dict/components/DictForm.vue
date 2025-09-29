@@ -26,7 +26,7 @@ watch(
     :confirm-loading="saving"
     :loading
     :title
-    @confirm="onSave"
+    @confirm="onSave()"
   >
     <NForm
       ref="formRef"

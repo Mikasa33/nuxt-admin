@@ -1,7 +1,7 @@
 import { inArray } from 'drizzle-orm'
-import { systemUserRole } from '~~/server/db/schema/system/userRole'
 import { insertSystemDepartmentSchema, systemDepartment, updateSystemDepartmentSchema } from '~~/server/db/schema/system/department'
 import { systemUser } from '~~/server/db/schema/system/user'
+import { systemUserRole } from '~~/server/db/schema/system/userRole'
 
 export default defineEventHandler(async (event) => {
   const db = await drizzle()

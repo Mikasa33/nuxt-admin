@@ -60,6 +60,9 @@ export default defineEventHandler(async (event) => {
     },
     listOptions: {
       keywordLike: ['name', 'slug'],
+      orderBy: {
+        id: 'asc',
+      },
     },
   })
 })

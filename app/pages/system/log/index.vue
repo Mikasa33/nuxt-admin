@@ -59,7 +59,7 @@ const columns: DataTableColumns = [
 ]
 
 const { execute, error } = await useCustomFetch('/api/system/log/clear', {
-  method: 'post',
+  method: 'POST',
   immediate: false,
 })
 

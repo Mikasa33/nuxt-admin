@@ -12,7 +12,7 @@ const formRef = useTemplateRef('form')
 const model = ref<any>({})
 
 const { error, execute, pending } = await useCustomFetch('/api/auth/login', {
-  method: 'post',
+  method: 'POST',
   body: model,
   immediate: false,
   watch: false,
